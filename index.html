@@ -455,7 +455,46 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          
+          <a id="more"></a>
+<h1 id="RLS原理"><a href="#RLS原理" class="headerlink" title="RLS原理"></a>RLS原理</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>考虑指数加权的优化问题：</p>
+<script type="math/tex; mode=display">\min J_{n}(\boldsymbol{w})=\sum_{i=0}^{n} \lambda^{n-i}|e(i)|^{2}=\sum_{i=0}^{n} \lambda^{n-i}\left|y(i)-\boldsymbol{w}^{\mathrm{H}}(n) \boldsymbol{x}(i)\right|^{2}</script><p>$0&lt;\lambda \leq 1$为遗忘因子，这里只讨论平稳情况，取$\lambda=1$</p>
+<script type="math/tex; mode=display">\begin{aligned}
+\frac{\partial J_{n}(\boldsymbol{w})}{\partial \boldsymbol{w}^{*}(n)}=& \frac{\partial}{\partial \boldsymbol{w}^{*}(n)} \sum_{i=1}^{n} \lambda^{n-i}\left[y(i)-\boldsymbol{w}^{\mathrm{H}}(n) \boldsymbol{x}(i)\right] \\
+& \times\left[y(i)-\boldsymbol{w}^{\mathrm{H}}(n) \boldsymbol{x}(i)\right]^{*} \\
+=& \boldsymbol{R}(n) \boldsymbol{w}(n)-\boldsymbol{r}(n)
+\end{aligned}</script><p>从而得到最优解：</p>
+<script type="math/tex; mode=display">\boldsymbol{w}_{\mathrm{opt}}(n)=\boldsymbol{R}^{-1}(n) \boldsymbol{r}(n)</script><p>其中：</p>
+<script type="math/tex; mode=display">\boldsymbol{R}(n)=\sum_{i=0}^{n} \lambda^{n-i} \boldsymbol{x}(i) \boldsymbol{x}^{\mathrm{H}}(i), \quad \boldsymbol{r}(n)=\sum_{i=0}^{n} \lambda^{n-i} \boldsymbol{x}(i) y^{*}(i)</script><p>可以看到，$\lambda=1$对应的就是最小二乘思想。回头看看之前分析的LMS以及NLMS，用的是随机梯度下降的思想，这是RLS与LMS很明显的不同点。<br>由于$x(i)$、$y(i)$时刻在变换，最优解如何更新呢？</p>
+<h2 id="迭代更新"><a href="#迭代更新" class="headerlink" title="迭代更新"></a>迭代更新</h2><p>矩阵求逆引理：<br>设A和B是两个M*M正定阵，它们之间的关系为：</p>
+<script type="math/tex; mode=display">\mathbf{A}=\mathbf{B}^{-1}+\mathbf{C D}^{-1} \mathbf{C}^{H}</script><p>其中，D是N<em>M正定阵，C是M</em>N矩阵。根据矩阵求逆引理，可将A的逆矩阵表示为：</p>
+<script type="math/tex; mode=display">\mathbf{A}^{-1}=\mathbf{B}-\mathbf{B C}\left(\mathbf{D}+\mathbf{C}^{H} \mathbf{B C}\right)^{-1} \mathbf{C}^{H} \mathbf{B}</script><p>定义逆矩阵：</p>
+<script type="math/tex; mode=display">\boldsymbol{P}(n)=\boldsymbol{R}^{-1}(n)</script><p>利用逆阵求逆引理：</p>
+<script type="math/tex; mode=display">\begin{aligned}
+\boldsymbol{P}(n) &=\frac{1}{\lambda}\left[\boldsymbol{P}(n-1)-\frac{\boldsymbol{P}(n-1) \boldsymbol{x}(n) \boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1)}{\lambda+\boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1) \boldsymbol{x}(n)}\right] \\
+&=\frac{1}{\lambda}\left[\boldsymbol{P}(n-1)-k(n) \boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1)\right]
+\end{aligned}</script><p>其中$k(n)$称为<strong>增益向量</strong>，由上式得出：</p>
+<script type="math/tex; mode=display">\boldsymbol{k}(n)=\frac{\boldsymbol{P}(n-1) \boldsymbol{x}(n)}{\lambda+\boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1) \boldsymbol{x}(n)}</script><p>借助迭代：</p>
+<script type="math/tex; mode=display">\boldsymbol{R}(n)=\lambda \boldsymbol{R}(n-1)+\boldsymbol{x}(n) \boldsymbol{x}^{\mathrm{H}}(n)</script><script type="math/tex; mode=display">\boldsymbol{r}(n)=\lambda \boldsymbol{r}(n-1)+\boldsymbol{x}(n) y^{*}(n)</script><p>可以得到权重的更新公式：</p>
+<script type="math/tex; mode=display">\boldsymbol{w}(n)=\boldsymbol{w}(n-1)+\boldsymbol{k}(n) \varepsilon^{*}(n)</script><p>其中$\varepsilon(n)$为估计误差：</p>
+<script type="math/tex; mode=display">\epsilon(n)=y(n)-\boldsymbol{w}^{\mathrm{H}}(n-1) \boldsymbol{x}(n)</script><p>至此实现RLS的整个步骤。</p>
+<h1 id="RLS应用实例"><a href="#RLS应用实例" class="headerlink" title="RLS应用实例"></a>RLS应用实例</h1><h2 id="算法步骤"><a href="#算法步骤" class="headerlink" title="算法步骤"></a>算法步骤</h2><p>结合上文的推导，给出RLS的迭代步骤：</p>
+<ol>
+<li>初始化<script type="math/tex; mode=display">\boldsymbol{w}(0)=\mathbf{0}, \boldsymbol{P}(0)=\delta^{-1} \boldsymbol{I} \quad(0<\delta \ll 1)</script>其中$\delta$为很小的正数，如1e-7；</li>
+<li>迭代更新<script type="math/tex; mode=display">\begin{array}{l}
+\varepsilon(n)=y(n)-\boldsymbol{w}^{\mathrm{H}}(n-1) \boldsymbol{x}(n) \\
+\boldsymbol{k}(n)=\frac{\boldsymbol{P}(n-1) \boldsymbol{x}(n)}{\lambda+\boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1) \boldsymbol{x}(n)} \\
+\boldsymbol{P}(n)=\frac{1}{\lambda}\left[\boldsymbol{P}(n-1)-\boldsymbol{k}(n) \boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1)\right] \\
+\boldsymbol{w}(n)=\boldsymbol{w}(n-1)+\boldsymbol{k}(n) \varepsilon^{*}(n)
+\end{array}</script></li>
+</ol>
+<h2 id="代码应用"><a href="#代码应用" class="headerlink" title="代码应用"></a>代码应用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">function [e,w]&#x3D;rls(lambda,M,u,d,delta)</span><br><span class="line">% recursive least squares,rls.</span><br><span class="line">w&#x3D;zeros(M,1);</span><br><span class="line">P&#x3D;eye(M)&#x2F;delta;</span><br><span class="line">u&#x3D;u(:);</span><br><span class="line">d&#x3D;d(:);</span><br><span class="line">% input signal length</span><br><span class="line">N&#x3D;length(u);</span><br><span class="line">% error vector</span><br><span class="line">e&#x3D;d.&#39;;</span><br><span class="line">% Step2: Loop, RLS</span><br><span class="line">for n&#x3D;M:N</span><br><span class="line">    uvec&#x3D;u(n:-1:n-M+1);</span><br><span class="line">    e(n)&#x3D;d(n)-w&#39;*uvec;</span><br><span class="line">    k&#x3D;lambda^(-1)*P*uvec&#x2F;(1+lambda^(-1)*uvec&#39;*P*uvec);</span><br><span class="line">    P&#x3D;lambda^(-1)*P-lambda^(-1)*k*uvec&#39;*P;</span><br><span class="line">    w&#x3D;w+k*conj(e(n));</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>应用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[s, fs, bits] &#x3D; wavread(filename);         </span><br><span class="line">s&#x3D;s-mean(s);                          </span><br><span class="line">s&#x3D;s&#x2F;max(abs(s));                      </span><br><span class="line">N&#x3D;length(s);                           </span><br><span class="line">time&#x3D;(0:N-1)&#x2F;fs;                      </span><br><span class="line">clean&#x3D;s&#39;;</span><br><span class="line">ref_noise&#x3D;.1*randn(1,length(s));</span><br><span class="line">mixed &#x3D; clean+ref_noise;</span><br><span class="line">mu&#x3D;0.05;M&#x3D;2;espon&#x3D;1e-4;</span><br><span class="line">% [en,wn,yn]&#x3D;lmsFunc(mu,M,ref_noise,mixed);</span><br><span class="line">% [en,wn,yn]&#x3D;nlmsFunc(mu,M,ref_noise,mixed,espon);</span><br><span class="line">delta &#x3D; 1e-7;</span><br><span class="line">lambda &#x3D; 1;</span><br><span class="line">[en,w]&#x3D;rls(lambda,M,ref_noise,mixed,delta);</span><br></pre></td></tr></table></figure><br>对应结果图：<br><img src="/images/RLS.png" alt="img"><br>可以看出不像NLMS/LMS有一个慢速收敛的过程，RLS在开始阶段就得到较好的降噪。</p>
+<h2 id="对比LMS"><a href="#对比LMS" class="headerlink" title="对比LMS"></a>对比LMS</h2><p>与LMS对比，可以观察到RLS的几点特性：</p>
+<ul>
+<li>平稳环境λ=1，其实是最小二乘的思想；LMS/NLMS是随机梯度下降思想；</li>
+<li>最小二乘是直接得出结果，随机梯度下降收敛慢，因此RLS比LMS/NLMS收敛快一个数量级；</li>
+</ul>
+
       
     </div>
 
