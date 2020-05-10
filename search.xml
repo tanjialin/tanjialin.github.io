@@ -92,7 +92,8 @@
   <entry>
     <title>最小二乘法</title>
     <url>/2019/10/21/%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95/</url>
-    <content><![CDATA[<a id="more"></a>
+    <content><![CDATA[<p>最小二乘法（又称最小平方法）是一种数学优化技术。它通过最小化误差的平方和寻找数据的最佳函数匹配。利用最小二乘法可以简便地求得未知的数据，并使得这些求得的数据与实际数据之间误差的平方和为最小。最小二乘法还可用于曲线拟合。其他一些优化问题也可通过最小化能量或最大化熵用最小二乘法来表达。</p>
+<a id="more"></a>
 <h1 id="矩阵方程问题描述"><a href="#矩阵方程问题描述" class="headerlink" title="矩阵方程问题描述"></a>矩阵方程问题描述</h1><h2 id="基本问题描述"><a href="#基本问题描述" class="headerlink" title="基本问题描述"></a>基本问题描述</h2><p>许多问题可以建模为矩阵方程形式：</p>
 <script type="math/tex; mode=display">\mathbf{A} \mathbf{x}=\mathbf{b}</script><p>其中根据向量$\mathbf{b} \in \mathbb{R}^{m \times 1}$ 和矩阵$\mathbf{A} \in \mathbb{R}^{m \times n}$的不同，矩阵方程的求解主要分为以下三类问题：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 超定矩阵方程 </span><br><span class="line">m &gt; n，b和A均已知，其中之一或二者可能存在观测误差、干扰；</span><br><span class="line">2. 盲矩阵方程</span><br><span class="line">仅向量b已知，矩阵A未知；</span><br><span class="line">3. 欠定稀疏矩阵方程</span><br><span class="line">m &lt; n，b和A均已知。</span><br></pre></td></tr></table></figure>

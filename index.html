@@ -633,39 +633,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <a id="more"></a>
-<h1 id="矩阵方程问题描述"><a href="#矩阵方程问题描述" class="headerlink" title="矩阵方程问题描述"></a>矩阵方程问题描述</h1><h2 id="基本问题描述"><a href="#基本问题描述" class="headerlink" title="基本问题描述"></a>基本问题描述</h2><p>许多问题可以建模为矩阵方程形式：</p>
-<script type="math/tex; mode=display">\mathbf{A} \mathbf{x}=\mathbf{b}</script><p>其中根据向量$\mathbf{b} \in \mathbb{R}^{m \times 1}$ 和矩阵$\mathbf{A} \in \mathbb{R}^{m \times n}$的不同，矩阵方程的求解主要分为以下三类问题：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. 超定矩阵方程 </span><br><span class="line">m &gt; n，b和A均已知，其中之一或二者可能存在观测误差、干扰；</span><br><span class="line">2. 盲矩阵方程</span><br><span class="line">仅向量b已知，矩阵A未知；</span><br><span class="line">3. 欠定稀疏矩阵方程</span><br><span class="line">m &lt; n，b和A均已知。</span><br></pre></td></tr></table></figure>
-<p>每一类问题，都有对应的方法：如对于<strong>超定矩阵方程</strong>，观测结果足够多，方程个数大于未知数个数，对应矩阵<strong>通常</strong>列满秩（不绝对），可以利用最小二乘得到唯一确定解；对于<strong>欠定矩阵方程</strong>，方程个数小于未知数个数，得出的解有多种可能，所以通常需要添加约束——例如稀疏性，虽然解有多种，最稀疏的可能只用一种，这要就得到了唯一确定解。给出问题与对应求解的示意图：</p>
-<p><img src="/images/LS.png" alt="Capon波束形成空间谱"></p>
-<p>对于欠定稀疏矩阵求解，核心问题为：</p>
-<script type="math/tex; mode=display">\min _{x}\|\mathbf{x}\|_{0} \quad \text { s.t. } \quad \mathbf{A x}=\mathbf{b}</script><p>这也是稀疏表示和压缩感知的核心问题，由于不免带有噪声，问题通常松弛为：</p>
-<script type="math/tex; mode=display">\min _{x}\|\mathbf{x}\|_{0} \quad \text { s.t. } \quad\|\mathbf{A} \mathbf{x}-\mathbf{b}\|_{2} \leq \varepsilon</script><h2 id="最小二乘问题"><a href="#最小二乘问题" class="headerlink" title="最小二乘问题"></a>最小二乘问题</h2><p>最小二乘根据噪声类型的不同，可以分为：普通最小二乘、数据最小二乘、总体最小二乘。</p>
-<ul>
-<li>普通最小二乘(<em>Ordinary least squares,OLS</em>)<br>此时，向量b(观测向量)带有误差，对应的问题为：<script type="math/tex; mode=display">\mathbf{A} \mathbf{x}=\mathbf{b}+\Delta \mathbf{b} \Rightarrow \mathbf{A} \mathbf{x}=\mathbf{b}_{0}</script></li>
-<li>数据最小二乘(<em>Data least squares,DLS</em>)<br>此时，数据矩阵A带有误差，对应的问题是：<script type="math/tex; mode=display">(\mathbf{A}+\Delta \mathbf{A}) \mathbf{x}=\mathbf{b} \Rightarrow \mathbf{A} \mathbf{x}_{0}=\mathbf{b}</script></li>
-<li>总体最小二乘(<em>Total least squares,TLS</em>)<br>此时，数据矩阵A和数据矩阵A都带有误差，对应的问题是：<script type="math/tex; mode=display">(\mathbf{A}+\Delta \mathbf{A}) \mathbf{x}=\mathbf{b}+\Delta \mathbf{b} \Rightarrow \mathbf{A} \mathbf{x}_{0}=\mathbf{b}_{0}</script>本文<strong>仅分析超定方程情况</strong>，且只讨论<strong>普通最小二乘问题</strong>。</li>
-</ul>
-<h1 id="普通最小二乘求解"><a href="#普通最小二乘求解" class="headerlink" title="普通最小二乘求解"></a>普通最小二乘求解</h1><p>问题描述：</p>
-<script type="math/tex; mode=display">\min _{x}\|\Delta \mathbf{b}\|^{2}=\min _{x}(\mathbf{A} \mathbf{x}-\mathbf{b})^{T}(\mathbf{A} \mathbf{x}-\mathbf{b})</script><p>其偏导为：</p>
-<script type="math/tex; mode=display">\mathbf{A}^{T} \mathbf{A} \mathbf{x}=\mathbf{A}^{T} \mathbf{b}</script><p>case1：列满秩，$\operatorname{rank}((\mathbf{A}))=n$<br>此时$\left(\mathbf{A}^{T} \mathbf{A}\right)$可逆，对应的解唯一，从而有：</p>
-<script type="math/tex; mode=display">\mathbf{x}_{O L S}=\left(\mathbf{A}^{T} \mathbf{A}\right)^{-1} \mathbf{A}^{T} \mathbf{b}</script><p>case2：秩亏缺，$\operatorname{rank}((\mathbf{A}))&lt;n$<br>这种情况下，需要借助Moore-Penrose进行广义逆求解，从而有：</p>
-<script type="math/tex; mode=display">\mathbf{x}_{O L S}=\left(\mathbf{A}^{T} \mathbf{A}\right)^{\dagger} \mathbf{A}^{T} \mathbf{b}</script><p><strong>秩亏缺情况下，得到的解不再是唯一的，但基于Moore-Penrose的解是唯一的</strong>，这就不免有一个问题——它是增加了何种约束？这里直接给出结论：此时的解为最小范数最小二乘解(<em>minimum norm least squares solution</em>)，或者说此时向量对应欧式距离最短.</p>
-<h1 id="普通最小二乘与最大似然"><a href="#普通最小二乘与最大似然" class="headerlink" title="普通最小二乘与最大似然"></a>普通最小二乘与最大似然</h1><p>给出数学模型（以多项式拟合为例，N次拟合，共M组样本点）：</p>
-<script type="math/tex; mode=display">\left\{\begin{array}{l}
-a_{0}+a_{1} x_{1}+a_{2} x_{1}^{2}+\ldots a_{N} x_{1}^{N}-y_{1}=\varepsilon_{1} \\
-a_{0}+a_{1} x_{2}+a_{2} x_{2}^{2}+\ldots a_{N} x_{2}^{N}-y_{2}=\varepsilon_{2} \\
-\cdots \\
-a_{0}+a_{1} x_{M}+a_{2} x_{M}^{2}+\ldots a_{N} x_{M}^{N}-y_{M}=\varepsilon_{M}
-\end{array}\right.</script><p>普通最小二乘准则函数：</p>
-<script type="math/tex; mode=display">J_{1}=\sum_{i=1}^{M}\left|f\left(x_{i}\right)-y_{i}\right|^{2}=\sum_{i=1}^{M}\left|\varepsilon_{i}\right|^{2}</script><p>最大似然准则：</p>
-<p>假设误差均服从$\left(0, \delta^{2}\right)$的正态分布，则有似然函数：</p>
-<script type="math/tex; mode=display">L_{2}=\frac{1}{\sqrt{2 \pi} \delta} e^{-\frac{\varepsilon_{1}^{2}}{2 \delta^{2}}} \cdot \frac{1}{\sqrt{2 \pi} \delta} e^{-\frac{\varepsilon_{2}^{2}}{2 \delta^{2}}} \ldots \cdot \frac{1}{\sqrt{2 \pi} \delta} e^{-\frac{\varepsilon_{M}^{2}}{2 \delta^{2}}}</script><p>求对数之后，最大似然准则函数等价于：</p>
-<script type="math/tex; mode=display">J_{2}=\sum_{i=1}^{M}\left|\varepsilon_{i}^{2}\right|=\sum_{i=1}^{M}\left|\varepsilon_{i}\right|^{2}</script><p>二者等价。</p>
-<h1 id="最小二乘与梯度下降"><a href="#最小二乘与梯度下降" class="headerlink" title="最小二乘与梯度下降"></a>最小二乘与梯度下降</h1><p>上文一个大前提就是方程可以转化为线性变换：</p>
-<script type="math/tex; mode=display">\mathbf{A} \mathbf{x}=\mathbf{b}</script><p>但很多时候不能实现问题的转化，非线性没有闭式解，这个时候仍然可以借助梯度下降求解，梯度下降在前文有分析。梯度下降是迭代的方式去逼近最优解，虽然可能是局部最优；而最小二乘是利用矩阵的形式直接得出结果。</p>
-
+          <p>最小二乘法（又称最小平方法）是一种数学优化技术。它通过最小化误差的平方和寻找数据的最佳函数匹配。利用最小二乘法可以简便地求得未知的数据，并使得这些求得的数据与实际数据之间误差的平方和为最小。最小二乘法还可用于曲线拟合。其他一些优化问题也可通过最小化能量或最大化熵用最小二乘法来表达。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/10/21/%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
