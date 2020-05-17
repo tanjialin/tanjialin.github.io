@@ -16,8 +16,7 @@
   <entry>
     <title>5G Massive MIMO</title>
     <url>/2020/03/17/5G-Massive-MIMO/</url>
-    <content><![CDATA[<p>修改中</p>
-<p>Massive MIMO（大规模天线技术，亦称为<em>Large Scale MIMO</em>）是第五代移动通信（5G）中提高系统容量和频谱利用率的关键技术。此技术中，基站利用同一个时频域资源同时为多个终端进行服务，从而增强了基站同时接收和发送多路不同信号的能力，可以有效的提升频谱利用率、数据传输的稳定性和可靠性。 </p>
+    <content><![CDATA[<p>Massive MIMO（大规模天线技术，亦称为<em>Large Scale MIMO</em>）是第五代移动通信（5G）中提高系统容量和频谱利用率的关键技术。此技术中，基站利用同一个时频域资源同时为多个终端进行服务，从而增强了基站同时接收和发送多路不同信号的能力，可以有效的提升频谱利用率、数据传输的稳定性和可靠性。 </p>
 <a id="more"></a>
 <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>原创文章，水平有限，如发现有错误，恳请及时联系作者修改，欢迎大家一起学习。 </p>
 <p>本节作为引言，不讨论技术，只讨论当下实际中存在的一些问题，接下来会逐步更新Massive MIMO的部分关键技术。 </p>
@@ -69,7 +68,7 @@
   <entry>
     <title>递归最小二乘</title>
     <url>/2020/02/08/%E9%80%92%E5%BD%92%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98/</url>
-    <content><![CDATA[<a id="more"></a>
+    <content><![CDATA[<p>最小二乘滤波算法的基本算法是递归最小二乘算法,这种算法实际上是FIR维纳滤波器的一种时间递归实现,它是严格以最小二乘准则为依据的算法。它的主要优点是收敛速度快,所以在快速信道均衡、实时系统辨识和时间序列分析中得到了广泛应用。其主要缺点是每次迭代需要的运算量很大。<br><a id="more"></a></p>
 <h1 id="RLS原理"><a href="#RLS原理" class="headerlink" title="RLS原理"></a>RLS原理</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>考虑指数加权的优化问题：</p>
 <script type="math/tex; mode=display">\min J_{n}(\boldsymbol{w})=\sum_{i=0}^{n} \lambda^{n-i}|e(i)|^{2}=\sum_{i=0}^{n} \lambda^{n-i}\left|y(i)-\boldsymbol{w}^{\mathrm{H}}(n) \boldsymbol{x}(i)\right|^{2}</script><p>$0&lt;\lambda \leq 1$为遗忘因子，这里只讨论平稳情况，取$\lambda=1$</p>
 <script type="math/tex; mode=display">\begin{aligned}
@@ -551,8 +550,8 @@ R = E[X { X^H } ]</script><p>实际中接收的信号都是由快拍数构成的
         <category>信号处理</category>
       </categories>
       <tags>
-        <tag>DOA</tag>
         <tag>波束形成</tag>
+        <tag>DOA</tag>
       </tags>
   </entry>
   <entry>
