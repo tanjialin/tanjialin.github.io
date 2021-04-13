@@ -60,9 +60,9 @@
         <category>通信</category>
       </categories>
       <tags>
+        <tag>阵列信号处理</tag>
         <tag>5G</tag>
         <tag>Massive MIMO</tag>
-        <tag>阵列信号处理</tag>
       </tags>
   </entry>
   <entry>
@@ -179,10 +179,119 @@ a_{0}+a_{1} x_{M}+a_{2} x_{M}^{2}+\ldots a_{N} x_{M}^{N}-y_{M}=\varepsilon_{M}
   <entry>
     <title>梯度下降算法</title>
     <url>/2019/09/16/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E7%AE%97%E6%B3%95/</url>
-    <content><![CDATA[]]></content>
+    <content><![CDATA[<p>梯度下降算法的解释：梯度下降算法最速下降法又称为梯度法，它是解析法中最古老的一种，其他解析方法或是它的变形，或是受它的启发而得到的，因此它是最优化方法的基础。作为一种基本的算法，他在最优化方法中占有重要地位。</p>
+<a id="more"></a>
+]]></content>
       <categories>
         <category>信号处理</category>
       </categories>
+  </entry>
+  <entry>
+    <title>MATLAB按数字顺序读取文件</title>
+    <url>/2019/09/02/MATLAB%E6%8C%89%E6%95%B0%E5%AD%97%E9%A1%BA%E5%BA%8F%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6/</url>
+    <content><![CDATA[<p>最近手上一个项目需要生成一个超大文件，但是内存不够需要在超算分散运行，生成了大量的散碎文件最终需要拼凑，以下代码可以将文件按自然数顺序排序，并且将矩阵在第三维度进行拼凑</p>
+<a id="more"></a>
+<h2 id="MATLAB按数字顺序读取文件"><a href="#MATLAB按数字顺序读取文件" class="headerlink" title="MATLAB按数字顺序读取文件"></a>MATLAB按数字顺序读取文件</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">clc</span><br><span class="line">clear all</span><br><span class="line"></span><br><span class="line">dbstop if error</span><br><span class="line"></span><br><span class="line">trainPath&#x3D;&#39;E:\project\16面阵\file7\&#39;;  </span><br><span class="line">train  &#x3D; dir([trainPath &#39;*.mat&#39;]);</span><br><span class="line">train_num &#x3D; length(train);</span><br><span class="line">data_all&#x3D;[];</span><br><span class="line"></span><br><span class="line">sort_nat_name&#x3D;sort_mat(&#123;train.name&#125;);   </span><br><span class="line"> </span><br><span class="line">for i&#x3D;1:train_num</span><br><span class="line">  data &#x3D; load(sort_nat_name&#123;i&#125;); </span><br><span class="line">  data_matx &#x3D; cell2mat(struct2cell(data));</span><br><span class="line">  if i &#x3D;&#x3D; 1</span><br><span class="line">      data_all(:,:,size(data_all,3):size(data_matx,3)) &#x3D; data_matx;   </span><br><span class="line">  else</span><br><span class="line">      data_all(:,:,size(data_all,3) + 1:size(data_all,3)+size(data_matx,3)) &#x3D; data_matx;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">function [cs,index] &#x3D; sort_mat(c,mode)</span><br><span class="line"></span><br><span class="line">if nargin &lt; 2</span><br><span class="line">    mode &#x3D; &#39;ascend&#39;;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">modes &#x3D; strcmpi(mode,&#123;&#39;ascend&#39;,&#39;descend&#39;&#125;);</span><br><span class="line">is_descend &#x3D; modes(2);</span><br><span class="line">if ~any(modes)</span><br><span class="line">    error(&#39;sort_nat:sortDirection&#39;,...</span><br><span class="line">        &#39;sorting direction must be &#39;&#39;ascend&#39;&#39; or &#39;&#39;descend&#39;&#39;.&#39;)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">c2 &#x3D; regexprep(c,&#39;\d+&#39;,&#39;0&#39;);</span><br><span class="line"></span><br><span class="line">s1 &#x3D; char(c2);</span><br><span class="line">z &#x3D; s1 &#x3D;&#x3D; &#39;0&#39;;</span><br><span class="line"></span><br><span class="line">[digruns,first,last] &#x3D; regexp(c,&#39;\d+&#39;,&#39;match&#39;,&#39;start&#39;,&#39;end&#39;);</span><br><span class="line"></span><br><span class="line">num_str &#x3D; length(c);</span><br><span class="line">max_len &#x3D; size(s1,2);</span><br><span class="line">num_val &#x3D; NaN(num_str,max_len);</span><br><span class="line">num_dig &#x3D; NaN(num_str,max_len);</span><br><span class="line">for i &#x3D; 1:num_str</span><br><span class="line">    num_val(i,z(i,:)) &#x3D; sscanf(sprintf(&#39;%s &#39;,digruns&#123;i&#125;&#123;:&#125;),&#39;%f&#39;);</span><br><span class="line">    num_dig(i,z(i,:)) &#x3D; last&#123;i&#125; - first&#123;i&#125; + 1;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">activecols &#x3D; reshape(find(~all(isnan(num_val))),1,[]);</span><br><span class="line">n &#x3D; length(activecols);</span><br><span class="line"></span><br><span class="line">numcols &#x3D; activecols + (1:2:2*n);</span><br><span class="line"></span><br><span class="line">ndigcols &#x3D; numcols + 1;</span><br><span class="line"></span><br><span class="line">charcols &#x3D; true(1,max_len + 2*n);</span><br><span class="line">charcols(numcols) &#x3D; false;</span><br><span class="line">charcols(ndigcols) &#x3D; false;</span><br><span class="line"></span><br><span class="line">comp &#x3D; zeros(num_str,max_len + 2*n);</span><br><span class="line">comp(:,charcols) &#x3D; double(s1);</span><br><span class="line">comp(:,numcols) &#x3D; num_val(:,activecols);</span><br><span class="line">comp(:,ndigcols) &#x3D; num_dig(:,activecols);</span><br><span class="line"></span><br><span class="line">[unused,index] &#x3D; sortrows(comp);</span><br><span class="line">if is_descend</span><br><span class="line">    index &#x3D; index(end:-1:1);</span><br><span class="line">end</span><br><span class="line">index &#x3D; reshape(index,size(c));</span><br><span class="line">cs &#x3D; c(index);</span><br><span class="line">end</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>MATLAB</category>
+      </categories>
+      <tags>
+        <tag>MATLAB</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MATLAB按数字顺序读取文件</title>
+    <url>/2019/09/02/markdown%E7%BC%96%E8%BE%91/</url>
+    <content><![CDATA[<a id="more"></a>
+<h1 id="欢迎使用Markdown编辑器"><a href="#欢迎使用Markdown编辑器" class="headerlink" title="欢迎使用Markdown编辑器"></a>欢迎使用Markdown编辑器</h1><p>你好！ 这是你第一次使用 <strong>Markdown编辑器</strong> 所展示的欢迎页。如果你想学习如何使用Markdown编辑器, 可以仔细阅读这篇文章，了解一下Markdown的基本语法知识。</p>
+<h2 id="新的改变"><a href="#新的改变" class="headerlink" title="新的改变"></a>新的改变</h2><p>我们对Markdown编辑器进行了一些功能拓展与语法支持，除了标准的Markdown编辑器功能，我们增加了如下几点新功能，帮助你用它写博客：</p>
+<ol>
+<li><strong>全新的界面设计</strong> ，将会带来全新的写作体验；</li>
+<li>在创作中心设置你喜爱的代码高亮样式，Markdown <strong>将代码片显示选择的高亮样式</strong> 进行展示；</li>
+<li>增加了 <strong>图片拖拽</strong> 功能，你可以将本地的图片直接拖拽到编辑区域直接展示；</li>
+<li>全新的 <strong>KaTeX数学公式</strong> 语法；</li>
+<li>增加了支持<strong>甘特图的mermaid语法<sup><a href="#fn_1" id="reffn_1">1</a></sup></strong> 功能；</li>
+<li>增加了 <strong>多屏幕编辑</strong> Markdown文章功能；</li>
+<li>增加了 <strong>焦点写作模式、预览模式、简洁写作模式、左右区域同步滚轮设置</strong> 等功能，功能按钮位于编辑区域与预览区域中间；</li>
+<li>增加了 <strong>检查列表</strong> 功能。</li>
+</ol>
+<h2 id="功能快捷键"><a href="#功能快捷键" class="headerlink" title="功能快捷键"></a>功能快捷键</h2><p>撤销：<kbd>Ctrl/Command</kbd> + <kbd>Z</kbd><br>重做：<kbd>Ctrl/Command</kbd> + <kbd>Y</kbd><br>加粗：<kbd>Ctrl/Command</kbd> + <kbd>B</kbd><br>斜体：<kbd>Ctrl/Command</kbd> + <kbd>I</kbd><br>标题：<kbd>Ctrl/Command</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd><br>无序列表：<kbd>Ctrl/Command</kbd> + <kbd>Shift</kbd> + <kbd>U</kbd><br>有序列表：<kbd>Ctrl/Command</kbd> + <kbd>Shift</kbd> + <kbd>O</kbd><br>检查列表：<kbd>Ctrl/Command</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd><br>插入代码：<kbd>Ctrl/Command</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd><br>插入链接：<kbd>Ctrl/Command</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd><br>插入图片：<kbd>Ctrl/Command</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd><br>查找：<kbd>Ctrl/Command</kbd> + <kbd>F</kbd><br>替换：<kbd>Ctrl/Command</kbd> + <kbd>G</kbd></p>
+<h2 id="合理的创建标题，有助于目录的生成"><a href="#合理的创建标题，有助于目录的生成" class="headerlink" title="合理的创建标题，有助于目录的生成"></a>合理的创建标题，有助于目录的生成</h2><p>直接输入1次<kbd>#</kbd>，并按下<kbd>space</kbd>后，将生成1级标题。<br>输入2次<kbd>#</kbd>，并按下<kbd>space</kbd>后，将生成2级标题。<br>以此类推，我们支持6级标题。有助于使用<code>TOC</code>语法后生成一个完美的目录。</p>
+<h2 id="如何改变文本的样式"><a href="#如何改变文本的样式" class="headerlink" title="如何改变文本的样式"></a>如何改变文本的样式</h2><p><em>强调文本</em> _强调文本_</p>
+<p><strong>加粗文本</strong> <strong>加粗文本</strong></p>
+<p>==标记文本==</p>
+<p><del>删除文本</del></p>
+<blockquote>
+<p>引用文本</p>
+</blockquote>
+<p>H~2~O is是液体。</p>
+<p>2^10^ 运算结果是 1024.</p>
+<h2 id="插入链接与图片"><a href="#插入链接与图片" class="headerlink" title="插入链接与图片"></a>插入链接与图片</h2><p>链接: <a href="https://www.csdn.net/" target="_blank" rel="noopener">link</a>.</p>
+<p>图片: <img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9hdmF0YXIuY3Nkbi5uZXQvNy83L0IvMV9yYWxmX2h4MTYzY29tLmpwZw" alt="Alt"></p>
+<p>带尺寸的图片: <img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9hdmF0YXIuY3Nkbi5uZXQvNy83L0IvMV9yYWxmX2h4MTYzY29tLmpwZw =30x30" alt="Alt"></p>
+<p>居中的图片: <img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9hdmF0YXIuY3Nkbi5uZXQvNy83L0IvMV9yYWxmX2h4MTYzY29tLmpwZw#pic_center" alt="Alt"></p>
+<p>居中并且带尺寸的图片: <img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9hdmF0YXIuY3Nkbi5uZXQvNy83L0IvMV9yYWxmX2h4MTYzY29tLmpwZw#pic_center =30x30" alt="Alt"></p>
+<p>当然，我们为了让用户更加便捷，我们增加了图片拖拽功能。</p>
+<h2 id="如何插入一段漂亮的代码片"><a href="#如何插入一段漂亮的代码片" class="headerlink" title="如何插入一段漂亮的代码片"></a>如何插入一段漂亮的代码片</h2><p>去<a href="https://mp.csdn.net/console/configBlog" target="_blank" rel="noopener">博客设置</a>页面，选择一款你喜欢的代码片高亮样式，下面展示同样高亮的 <code>代码片</code>.<br><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// An highlighted block</span></span><br><span class="line"><span class="keyword">var</span> foo = <span class="string">'bar'</span>;</span><br></pre></td></tr></table></figure></p>
+<h2 id="生成一个适合你的列表"><a href="#生成一个适合你的列表" class="headerlink" title="生成一个适合你的列表"></a>生成一个适合你的列表</h2><ul>
+<li>项目<ul>
+<li>项目<ul>
+<li>项目</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>项目1</li>
+<li>项目2</li>
+<li>项目3</li>
+</ol>
+<ul>
+<li>[ ] 计划任务</li>
+<li>[x] 完成任务</li>
+</ul>
+<h2 id="创建一个表格"><a href="#创建一个表格" class="headerlink" title="创建一个表格"></a>创建一个表格</h2><p>一个简单的表格是这么创建的：<br>项目     | Value<br>———— | ——-<br>电脑  | $1600<br>手机  | $12<br>导管  | $1</p>
+<h3 id="设定内容居中、居左、居右"><a href="#设定内容居中、居左、居右" class="headerlink" title="设定内容居中、居左、居右"></a>设定内容居中、居左、居右</h3><p>使用<code>:---------:</code>居中<br>使用<code>:----------</code>居左<br>使用<code>----------:</code>居右<br>| 第一列       | 第二列         | 第三列        |<br>|:—————-:| ——————-:|:——————-|<br>| 第一列文本居中 | 第二列文本居右  | 第三列文本居左 |</p>
+<h3 id="SmartyPants"><a href="#SmartyPants" class="headerlink" title="SmartyPants"></a>SmartyPants</h3><p>SmartyPants将ASCII标点字符转换为“智能”印刷标点HTML实体。例如：<br>|    TYPE   |ASCII                          |HTML<br>|————————|———————————————-|——————————————-|<br>|Single backticks|<code>&#39;Isn&#39;t this fun?&#39;</code>            |’Isn’t this fun?’            |<br>|Quotes          |<code>&quot;Isn&#39;t this fun?&quot;</code>            |”Isn’t this fun?”            |<br>|Dashes          |<code>-- is en-dash, --- is em-dash</code>|— is en-dash, —- is em-dash|</p>
+<h2 id="创建一个自定义列表"><a href="#创建一个自定义列表" class="headerlink" title="创建一个自定义列表"></a>创建一个自定义列表</h2><p>Markdown<br>:  Text-to-HTML conversion tool</p>
+<p>Authors<br>:  John<br>:  Luke</p>
+<h2 id="如何创建一个注脚"><a href="#如何创建一个注脚" class="headerlink" title="如何创建一个注脚"></a>如何创建一个注脚</h2><p>一个具有注脚的文本。<sup><a href="#fn_2" id="reffn_2">2</a></sup></p>
+<blockquote id="fn_2">
+<sup>2</sup>. 注脚的解释<a href="#reffn_2" title="Jump back to footnote [2] in the text."> &#8617;</a>
+</blockquote>
+<h2 id="注释也是必不可少的"><a href="#注释也是必不可少的" class="headerlink" title="注释也是必不可少的"></a>注释也是必不可少的</h2><p>Markdown将文本转换为 HTML。</p>
+<p>*[HTML]:   超文本标记语言</p>
+<h2 id="KaTeX数学公式"><a href="#KaTeX数学公式" class="headerlink" title="KaTeX数学公式"></a>KaTeX数学公式</h2><p>您可以使用渲染LaTeX数学表达式 <a href="https://khan.github.io/KaTeX/" target="_blank" rel="noopener">KaTeX</a>:</p>
+<p>Gamma公式展示 $\Gamma(n) = (n-1)!\quad\forall<br>n\in\mathbb N$ 是通过欧拉积分</p>
+<script type="math/tex; mode=display">
+\Gamma(z) = \int_0^\infty t^{z-1}e^{-t}dt\,.</script><blockquote>
+<p>你可以找到更多关于的信息 <strong>LaTeX</strong> 数学表达式[here][1].</p>
+</blockquote>
+<h2 id="新的甘特图功能，丰富你的文章"><a href="#新的甘特图功能，丰富你的文章" class="headerlink" title="新的甘特图功能，丰富你的文章"></a>新的甘特图功能，丰富你的文章</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">gantt</span><br><span class="line">        dateFormat  YYYY-MM-DD</span><br><span class="line">        title Adding GANTT diagram functionality to mermaid</span><br><span class="line">        section 现有任务</span><br><span class="line">        已完成               :done,    des1, 2014-01-06,2014-01-08</span><br><span class="line">        进行中               :active,  des2, 2014-01-09, 3d</span><br><span class="line">        计划一               :         des3, after des2, 5d</span><br><span class="line">        计划二               :         des4, after des3, 5d</span><br></pre></td></tr></table></figure>
+<ul>
+<li>关于 <strong>甘特图</strong> 语法，参考 [这儿][2],</li>
+</ul>
+<h2 id="UML-图表"><a href="#UML-图表" class="headerlink" title="UML 图表"></a>UML 图表</h2><p>可以使用UML图表进行渲染。 <a href="https://mermaidjs.github.io/" target="_blank" rel="noopener">Mermaid</a>. 例如下面产生的一个序列图：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">张三 -&gt;&gt; 李四: 你好！李四, 最近怎么样?</span><br><span class="line">李四--&gt;&gt;王五: 你最近怎么样，王五？</span><br><span class="line">李四--x 张三: 我很好，谢谢!</span><br><span class="line">李四-x 王五: 我很好，谢谢!</span><br><span class="line">Note right of 王五: 李四想了很长时间, 文字太长了&lt;br&#x2F;&gt;不适合放在一行.</span><br><span class="line"></span><br><span class="line">李四--&gt;&gt;张三: 打量着王五...</span><br><span class="line">张三-&gt;&gt;王五: 很好... 王五, 你怎么样?</span><br></pre></td></tr></table></figure>
+<p>这将产生一个流程图。:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">graph LR</span><br><span class="line">A[长方形] -- 链接 --&gt; B((圆))</span><br><span class="line">A --&gt; C(圆角长方形)</span><br><span class="line">B --&gt; D&#123;菱形&#125;</span><br><span class="line">C --&gt; D</span><br></pre></td></tr></table></figure>
+<ul>
+<li>关于 <strong>Mermaid</strong> 语法，参考 [这儿][3],</li>
+</ul>
+<h2 id="FLowchart流程图"><a href="#FLowchart流程图" class="headerlink" title="FLowchart流程图"></a>FLowchart流程图</h2><p>我们依旧会支持flowchart的流程图：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">flowchat</span><br><span class="line">st&#x3D;&gt;start: 开始</span><br><span class="line">e&#x3D;&gt;end: 结束</span><br><span class="line">op&#x3D;&gt;operation: 我的操作</span><br><span class="line">cond&#x3D;&gt;condition: 确认？</span><br><span class="line"></span><br><span class="line">st-&gt;op-&gt;cond</span><br><span class="line">cond(yes)-&gt;e</span><br><span class="line">cond(no)-&gt;op</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>关于 <strong>Flowchart流程图</strong> 语法，参考 [这儿][4].</li>
+</ul>
+<h2 id="导出与导入"><a href="#导出与导入" class="headerlink" title="导出与导入"></a>导出与导入</h2><h3 id="导出"><a href="#导出" class="headerlink" title="导出"></a>导出</h3><p>如果你想尝试使用此编辑器, 你可以在此篇文章任意编辑。当你完成了一篇文章的写作, 在上方工具栏找到 <strong>文章导出</strong> ，生成一个.md文件或者.html文件进行本地保存。</p>
+<h3 id="导入"><a href="#导入" class="headerlink" title="导入"></a>导入</h3><p>如果你想加载一篇你写过的.md文件，在上方工具栏可以选择导入功能进行对应扩展名的文件导入，<br>继续你的创作。</p>
+]]></content>
+      <categories>
+        <category>MATLAB</category>
+      </categories>
+      <tags>
+        <tag>MATLAB</tag>
+      </tags>
   </entry>
   <entry>
     <title>协方差矩阵重构的零陷展宽算法</title>
@@ -204,6 +313,30 @@ a_{0}+a_{1} x_{M}+a_{2} x_{M}^{2}+\ldots a_{N} x_{M}^{N}-y_{M}=\varepsilon_{M}
         <tag>Capon谱</tag>
         <tag>深度</tag>
         <tag>宽度</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>音频系统</title>
+    <url>/2019/09/02/%E9%9F%B3%E9%A2%91%E4%BF%A1%E5%8F%B7%E7%B3%BB%E7%BB%9F/</url>
+    <content><![CDATA[<div id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="OOPS, these decrypted content may changed, but you can still have a look.">
+  <div class="hbe-input-container">
+  <input type="password" id="hbePass" placeholder="" />
+    <label for="hbePass">Welcome to my blog, enter password to read.</label>
+    <div class="bottom-line"></div>
+  </div>
+  <script id="hbeData" type="hbeData" data-hmacdigest="0a1c97be920c9809a98dfba8b53915e071d52fbd6348bc4243607e3ec22a2860">81dfbb930bb983baadb3ccedaa912621bd83491a11a6081b5230bce3deb31836ca61389e9b5b3b93f6104742a293b62a5f852c252038a417c136db02a00373b40675fb19e288233f9291df32e2729c4ccacbbd10c85efd4d30b9714080f421305a2dbfeeffd02dad3ca0bbd30c767cf3ea3ec398e45c1bfa83b5a22089644a3e9df25f374f563c10a68a9f04db760a847260ffb4b3fd94c80cfe1a68438a452acd210eb160110ea5e27c7633f741a02edc38bff0ebb27e4d0e2fbda14e511c6fb495a7efc72256a84f3586a3e1d3cd39008d29f44b499290bef9081e1e3eb3ed58e067bb4f8ba178a15bd9cbd8a8dc12488fede2b8db7ad5ed9475c90ab169fce8a82528d5ed1815df801ce562ffe9ec8c8e04259e8a10f78c5ff006fcd19a5c</script>
+</div>
+<script src="/lib/blog-encrypt.js"></script><link href="/css/blog-encrypt.css" rel="stylesheet" type="text/css">]]></content>
+      <categories>
+        <category>音频</category>
+      </categories>
+      <tags>
+        <tag>3A算法</tag>
+        <tag>前向冗余</tag>
+        <tag>ARQ</tag>
+        <tag>丢包</tag>
+        <tag>时延</tag>
+        <tag>VAD</tag>
       </tags>
   </entry>
   <entry>
@@ -264,15 +397,25 @@ a(\theta), & \theta \in \Theta_{P} \\
         <category>信号处理</category>
       </categories>
       <tags>
-        <tag>阵列信号处理</tag>
         <tag>凸优化</tag>
         <tag>滤波器</tag>
+        <tag>阵列信号处理</tag>
       </tags>
   </entry>
   <entry>
     <title>拉格朗日乘子法</title>
     <url>/2019/04/15/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/</url>
-    <content><![CDATA[]]></content>
+    <content><![CDATA[<p>拉格朗日乘子搭建了一个桥梁：将有限制的准则函数，转化为无限制准则函数，进而借助最速下降法、拟牛顿法等求参算法进行求解。</p>
+<a id="more"></a>
+<h1 id="含有等式约束拉格朗日乘子法"><a href="#含有等式约束拉格朗日乘子法" class="headerlink" title="含有等式约束拉格朗日乘子法"></a>含有等式约束拉格朗日乘子法</h1><p>对于含有约束的优化问题，可以在约束域内对准则函数搜索最优解，但如果约束较为复杂搜索起来显然不那么容易，如果借助某种方式将约束问题转化为无约束问题，求解则更为方便一些，这也是拉格朗日乘子法的魅力所在。</p>
+<h2 id="只含一个等式约束的最优化"><a href="#只含一个等式约束的最优化" class="headerlink" title="只含一个等式约束的最优化"></a>只含一个等式约束的最优化</h2><p>实函数$f(\mathbf{w})$是参数向量$w$的二次函数，约束条件：</p>
+<script type="math/tex; mode=display">\mathbf{w}^{H} \mathbf{s}=g</script><p>其中$s$是已知向量，$g$是复常数。例如在波束形成应用中$w$表示各传感器输出的一组复数权值，$s$是一个旋转向量。假设该问题是一个最小化问题，令$c(\mathbf{w})=\mathbf{w}^{H} \mathbf{s}-g=0+j 0$可以描述为：</p>
+<script type="math/tex; mode=display">\begin{array}{ll}
+\min & f(\mathbf{w}) \\
+\text {s.t.} & c(\mathbf{w})=0+j 0
+\end{array}</script><p>所谓拉格朗日乘子法，就是引入拉格朗日乘子：将上述约束最小化问题转化为无约束问题，定义一个新的实函数：</p>
+<script type="math/tex; mode=display">h(\mathbf{w})=f(\mathbf{w})+\lambda_{1} \operatorname{Re}[c(\mathbf{w})]+\lambda_{2} \operatorname{Im}[c(\mathbf{w})]</script><p>$h(\mathbf{w})$改写为：</p>
+]]></content>
       <categories>
         <category>信号处理</category>
       </categories>
@@ -550,8 +693,8 @@ R = E[X { X^H } ]</script><p>实际中接收的信号都是由快拍数构成的
         <category>信号处理</category>
       </categories>
       <tags>
-        <tag>波束形成</tag>
         <tag>DOA</tag>
+        <tag>波束形成</tag>
       </tags>
   </entry>
   <entry>
