@@ -60,9 +60,9 @@
         <category>通信</category>
       </categories>
       <tags>
-        <tag>阵列信号处理</tag>
         <tag>5G</tag>
         <tag>Massive MIMO</tag>
+        <tag>阵列信号处理</tag>
       </tags>
   </entry>
   <entry>
@@ -187,6 +187,19 @@ a_{0}+a_{1} x_{M}+a_{2} x_{M}^{2}+\ldots a_{N} x_{M}^{N}-y_{M}=\varepsilon_{M}
       </categories>
   </entry>
   <entry>
+    <title>MATLAB按数字顺序读取文件</title>
+    <url>/2019/09/02/MATLAB%E6%8C%89%E6%95%B0%E5%AD%97%E9%A1%BA%E5%BA%8F%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6/</url>
+    <content><![CDATA[<p>最近手上一个项目需要生成一个超大文件，但是内存不够需要在超算分散运行，生成了大量的散碎文件最终需要拼凑，以下代码可以将文件按自然数顺序排序，并且将矩阵在第三维度进行拼凑</p>
+<a id="more"></a>
+<h2 id="MATLAB按数字顺序读取文件"><a href="#MATLAB按数字顺序读取文件" class="headerlink" title="MATLAB按数字顺序读取文件"></a>MATLAB按数字顺序读取文件</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">clc</span><br><span class="line">clear all</span><br><span class="line"></span><br><span class="line">dbstop if error</span><br><span class="line"></span><br><span class="line">trainPath&#x3D;&#39;E:\project\16面阵\file7\&#39;;  </span><br><span class="line">train  &#x3D; dir([trainPath &#39;*.mat&#39;]);</span><br><span class="line">train_num &#x3D; length(train);</span><br><span class="line">data_all&#x3D;[];</span><br><span class="line"></span><br><span class="line">sort_nat_name&#x3D;sort_mat(&#123;train.name&#125;);   </span><br><span class="line"> </span><br><span class="line">for i&#x3D;1:train_num</span><br><span class="line">  data &#x3D; load(sort_nat_name&#123;i&#125;); </span><br><span class="line">  data_matx &#x3D; cell2mat(struct2cell(data));</span><br><span class="line">  if i &#x3D;&#x3D; 1</span><br><span class="line">      data_all(:,:,size(data_all,3):size(data_matx,3)) &#x3D; data_matx;   </span><br><span class="line">  else</span><br><span class="line">      data_all(:,:,size(data_all,3) + 1:size(data_all,3)+size(data_matx,3)) &#x3D; data_matx;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">function [cs,index] &#x3D; sort_mat(c,mode)</span><br><span class="line"></span><br><span class="line">if nargin &lt; 2</span><br><span class="line">    mode &#x3D; &#39;ascend&#39;;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">modes &#x3D; strcmpi(mode,&#123;&#39;ascend&#39;,&#39;descend&#39;&#125;);</span><br><span class="line">is_descend &#x3D; modes(2);</span><br><span class="line">if ~any(modes)</span><br><span class="line">    error(&#39;sort_nat:sortDirection&#39;,...</span><br><span class="line">        &#39;sorting direction must be &#39;&#39;ascend&#39;&#39; or &#39;&#39;descend&#39;&#39;.&#39;)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">c2 &#x3D; regexprep(c,&#39;\d+&#39;,&#39;0&#39;);</span><br><span class="line"></span><br><span class="line">s1 &#x3D; char(c2);</span><br><span class="line">z &#x3D; s1 &#x3D;&#x3D; &#39;0&#39;;</span><br><span class="line"></span><br><span class="line">[digruns,first,last] &#x3D; regexp(c,&#39;\d+&#39;,&#39;match&#39;,&#39;start&#39;,&#39;end&#39;);</span><br><span class="line"></span><br><span class="line">num_str &#x3D; length(c);</span><br><span class="line">max_len &#x3D; size(s1,2);</span><br><span class="line">num_val &#x3D; NaN(num_str,max_len);</span><br><span class="line">num_dig &#x3D; NaN(num_str,max_len);</span><br><span class="line">for i &#x3D; 1:num_str</span><br><span class="line">    num_val(i,z(i,:)) &#x3D; sscanf(sprintf(&#39;%s &#39;,digruns&#123;i&#125;&#123;:&#125;),&#39;%f&#39;);</span><br><span class="line">    num_dig(i,z(i,:)) &#x3D; last&#123;i&#125; - first&#123;i&#125; + 1;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">activecols &#x3D; reshape(find(~all(isnan(num_val))),1,[]);</span><br><span class="line">n &#x3D; length(activecols);</span><br><span class="line"></span><br><span class="line">numcols &#x3D; activecols + (1:2:2*n);</span><br><span class="line"></span><br><span class="line">ndigcols &#x3D; numcols + 1;</span><br><span class="line"></span><br><span class="line">charcols &#x3D; true(1,max_len + 2*n);</span><br><span class="line">charcols(numcols) &#x3D; false;</span><br><span class="line">charcols(ndigcols) &#x3D; false;</span><br><span class="line"></span><br><span class="line">comp &#x3D; zeros(num_str,max_len + 2*n);</span><br><span class="line">comp(:,charcols) &#x3D; double(s1);</span><br><span class="line">comp(:,numcols) &#x3D; num_val(:,activecols);</span><br><span class="line">comp(:,ndigcols) &#x3D; num_dig(:,activecols);</span><br><span class="line"></span><br><span class="line">[unused,index] &#x3D; sortrows(comp);</span><br><span class="line">if is_descend</span><br><span class="line">    index &#x3D; index(end:-1:1);</span><br><span class="line">end</span><br><span class="line">index &#x3D; reshape(index,size(c));</span><br><span class="line">cs &#x3D; c(index);</span><br><span class="line">end</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>MATLAB</category>
+      </categories>
+      <tags>
+        <tag>MATLAB</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Markdown编辑器</title>
     <url>/2019/09/02/markdown%E7%BC%96%E8%BE%91/</url>
     <content><![CDATA[<p>阅读这篇文章，了解一下Markdown的基本语法知识。</p>
@@ -273,19 +286,6 @@ a_{0}+a_{1} x_{M}+a_{2} x_{M}^{2}+\ldots a_{N} x_{M}^{N}-y_{M}=\varepsilon_{M}
 <h2 id="导出与导入"><a href="#导出与导入" class="headerlink" title="导出与导入"></a>导出与导入</h2><h3 id="导出"><a href="#导出" class="headerlink" title="导出"></a>导出</h3><p>如果你想尝试使用此编辑器, 你可以在此篇文章任意编辑。当你完成了一篇文章的写作, 在上方工具栏找到 <strong>文章导出</strong> ，生成一个.md文件或者.html文件进行本地保存。</p>
 <h3 id="导入"><a href="#导入" class="headerlink" title="导入"></a>导入</h3><p>如果你想加载一篇你写过的.md文件，在上方工具栏可以选择导入功能进行对应扩展名的文件导入，<br>继续你的创作。</p>
 ]]></content>
-      <categories>
-        <category>MATLAB</category>
-      </categories>
-      <tags>
-        <tag>MATLAB</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MATLAB按数字顺序读取文件</title>
-    <url>/2019/09/02/MATLAB%E6%8C%89%E6%95%B0%E5%AD%97%E9%A1%BA%E5%BA%8F%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6/</url>
-    <content><![CDATA[<p>最近手上一个项目需要生成一个超大文件，但是内存不够需要在超算分散运行，生成了大量的散碎文件最终需要拼凑，以下代码可以将文件按自然数顺序排序，并且将矩阵在第三维度进行拼凑</p>
-<a id="more"></a>
-<h2 id="MATLAB按数字顺序读取文件"><a href="#MATLAB按数字顺序读取文件" class="headerlink" title="MATLAB按数字顺序读取文件"></a>MATLAB按数字顺序读取文件</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">clc</span><br><span class="line">clear all</span><br><span class="line"></span><br><span class="line">dbstop if error</span><br><span class="line"></span><br><span class="line">trainPath&#x3D;&#39;E:\project\16面阵\file7\&#39;;  </span><br><span class="line">train  &#x3D; dir([trainPath &#39;*.mat&#39;]);</span><br><span class="line">train_num &#x3D; length(train);</span><br><span class="line">data_all&#x3D;[];</span><br><span class="line"></span><br><span class="line">sort_nat_name&#x3D;sort_mat(&#123;train.name&#125;);   </span><br><span class="line"> </span><br><span class="line">for i&#x3D;1:train_num</span><br><span class="line">  data &#x3D; load(sort_nat_name&#123;i&#125;); </span><br><span class="line">  data_matx &#x3D; cell2mat(struct2cell(data));</span><br><span class="line">  if i &#x3D;&#x3D; 1</span><br><span class="line">      data_all(:,:,size(data_all,3):size(data_matx,3)) &#x3D; data_matx;   </span><br><span class="line">  else</span><br><span class="line">      data_all(:,:,size(data_all,3) + 1:size(data_all,3)+size(data_matx,3)) &#x3D; data_matx;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">function [cs,index] &#x3D; sort_mat(c,mode)</span><br><span class="line"></span><br><span class="line">if nargin &lt; 2</span><br><span class="line">    mode &#x3D; &#39;ascend&#39;;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">modes &#x3D; strcmpi(mode,&#123;&#39;ascend&#39;,&#39;descend&#39;&#125;);</span><br><span class="line">is_descend &#x3D; modes(2);</span><br><span class="line">if ~any(modes)</span><br><span class="line">    error(&#39;sort_nat:sortDirection&#39;,...</span><br><span class="line">        &#39;sorting direction must be &#39;&#39;ascend&#39;&#39; or &#39;&#39;descend&#39;&#39;.&#39;)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">c2 &#x3D; regexprep(c,&#39;\d+&#39;,&#39;0&#39;);</span><br><span class="line"></span><br><span class="line">s1 &#x3D; char(c2);</span><br><span class="line">z &#x3D; s1 &#x3D;&#x3D; &#39;0&#39;;</span><br><span class="line"></span><br><span class="line">[digruns,first,last] &#x3D; regexp(c,&#39;\d+&#39;,&#39;match&#39;,&#39;start&#39;,&#39;end&#39;);</span><br><span class="line"></span><br><span class="line">num_str &#x3D; length(c);</span><br><span class="line">max_len &#x3D; size(s1,2);</span><br><span class="line">num_val &#x3D; NaN(num_str,max_len);</span><br><span class="line">num_dig &#x3D; NaN(num_str,max_len);</span><br><span class="line">for i &#x3D; 1:num_str</span><br><span class="line">    num_val(i,z(i,:)) &#x3D; sscanf(sprintf(&#39;%s &#39;,digruns&#123;i&#125;&#123;:&#125;),&#39;%f&#39;);</span><br><span class="line">    num_dig(i,z(i,:)) &#x3D; last&#123;i&#125; - first&#123;i&#125; + 1;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">activecols &#x3D; reshape(find(~all(isnan(num_val))),1,[]);</span><br><span class="line">n &#x3D; length(activecols);</span><br><span class="line"></span><br><span class="line">numcols &#x3D; activecols + (1:2:2*n);</span><br><span class="line"></span><br><span class="line">ndigcols &#x3D; numcols + 1;</span><br><span class="line"></span><br><span class="line">charcols &#x3D; true(1,max_len + 2*n);</span><br><span class="line">charcols(numcols) &#x3D; false;</span><br><span class="line">charcols(ndigcols) &#x3D; false;</span><br><span class="line"></span><br><span class="line">comp &#x3D; zeros(num_str,max_len + 2*n);</span><br><span class="line">comp(:,charcols) &#x3D; double(s1);</span><br><span class="line">comp(:,numcols) &#x3D; num_val(:,activecols);</span><br><span class="line">comp(:,ndigcols) &#x3D; num_dig(:,activecols);</span><br><span class="line"></span><br><span class="line">[unused,index] &#x3D; sortrows(comp);</span><br><span class="line">if is_descend</span><br><span class="line">    index &#x3D; index(end:-1:1);</span><br><span class="line">end</span><br><span class="line">index &#x3D; reshape(index,size(c));</span><br><span class="line">cs &#x3D; c(index);</span><br><span class="line">end</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>MATLAB</category>
       </categories>
@@ -397,9 +397,9 @@ a(\theta), & \theta \in \Theta_{P} \\
         <category>信号处理</category>
       </categories>
       <tags>
+        <tag>阵列信号处理</tag>
         <tag>凸优化</tag>
         <tag>滤波器</tag>
-        <tag>阵列信号处理</tag>
       </tags>
   </entry>
   <entry>
