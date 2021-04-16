@@ -693,8 +693,8 @@ R = E[X { X^H } ]</script><p>实际中接收的信号都是由快拍数构成的
         <category>信号处理</category>
       </categories>
       <tags>
-        <tag>波束形成</tag>
         <tag>DOA</tag>
+        <tag>波束形成</tag>
       </tags>
   </entry>
   <entry>
