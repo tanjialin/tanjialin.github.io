@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="jcM1vUOOpm-NvMdll5ye39GGKze3JHCMWwQfmKhvNkI" />
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.tanjialin.cn","root":"/","scheme":"Pisces","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+<link href="//cdn.bootcss.com/animate.css/3.5.0/animate.min.css" rel="stylesheet">
+  <meta name="description" content="最小二乘滤波算法的基本算法是递归最小二乘算法,这种算法实际上是FIR维纳滤波器的一种时间递归实现,它是严格以最小二乘准则为依据的算法。它的主要优点是收敛速度快,所以在快速信道均衡、实时系统辨识和时间序列分析中得到了广泛应用。其主要缺点是每次迭代需要的运算量很大。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="递归最小二乘">
+<meta property="og:url" content="https://www.tanjialin.cn/posts/44588.html">
+<meta property="og:site_name" content="明月入怀">
+<meta property="og:description" content="最小二乘滤波算法的基本算法是递归最小二乘算法,这种算法实际上是FIR维纳滤波器的一种时间递归实现,它是严格以最小二乘准则为依据的算法。它的主要优点是收敛速度快,所以在快速信道均衡、实时系统辨识和时间序列分析中得到了广泛应用。其主要缺点是每次迭代需要的运算量很大。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.tanjialin.cn/images/RLS.png">
+<meta property="article:published_time" content="2020-02-08T05:28:46.000Z">
+<meta property="article:modified_time" content="2021-04-16T07:24:30.427Z">
+<meta property="article:author" content="Tan Jialin">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.tanjialin.cn/images/RLS.png">
+
+<link rel="canonical" href="https://www.tanjialin.cn/posts/44588.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>递归最小二乘 | 明月入怀</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/rss2.xml" title="明月入怀" type="application/rss+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">明月入怀</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">积跬步以至千里</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-留言">
+
+    <a href="/guestbook" rel="section"><i class="fa fa-fw fa-newspaper-o"></i>留言</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.tanjialin.cn/posts/44588.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Tan Jialin">
+      <meta itemprop="description" content="一切都是瞬间，一切都会过去">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="明月入怀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          递归最小二乘
+        </h1>
+
+        <div class="post-meta">
+
+			
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-08 13:28:46" itemprop="dateCreated datePublished" datetime="2020-02-08T13:28:46+08:00">2020-02-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">信号处理</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/posts/44588.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/44588.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最小二乘滤波算法的基本算法是递归最小二乘算法,这种算法实际上是FIR维纳滤波器的一种时间递归实现,它是严格以最小二乘准则为依据的算法。它的主要优点是收敛速度快,所以在快速信道均衡、实时系统辨识和时间序列分析中得到了广泛应用。其主要缺点是每次迭代需要的运算量很大。<br><a id="more"></a></p>
+<h1 id="RLS原理"><a href="#RLS原理" class="headerlink" title="RLS原理"></a>RLS原理</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>考虑指数加权的优化问题：</p>
+<script type="math/tex; mode=display">\min J_{n}(\boldsymbol{w})=\sum_{i=0}^{n} \lambda^{n-i}|e(i)|^{2}=\sum_{i=0}^{n} \lambda^{n-i}\left|y(i)-\boldsymbol{w}^{\mathrm{H}}(n) \boldsymbol{x}(i)\right|^{2}</script><p>$0&lt;\lambda \leq 1$为遗忘因子，这里只讨论平稳情况，取$\lambda=1$</p>
+<script type="math/tex; mode=display">\begin{aligned}
+\frac{\partial J_{n}(\boldsymbol{w})}{\partial \boldsymbol{w}^{*}(n)}=& \frac{\partial}{\partial \boldsymbol{w}^{*}(n)} \sum_{i=1}^{n} \lambda^{n-i}\left[y(i)-\boldsymbol{w}^{\mathrm{H}}(n) \boldsymbol{x}(i)\right] \\
+& \times\left[y(i)-\boldsymbol{w}^{\mathrm{H}}(n) \boldsymbol{x}(i)\right]^{*} \\
+=& \boldsymbol{R}(n) \boldsymbol{w}(n)-\boldsymbol{r}(n)
+\end{aligned}</script><p>从而得到最优解：</p>
+<script type="math/tex; mode=display">\boldsymbol{w}_{\mathrm{opt}}(n)=\boldsymbol{R}^{-1}(n) \boldsymbol{r}(n)</script><p>其中：</p>
+<script type="math/tex; mode=display">\boldsymbol{R}(n)=\sum_{i=0}^{n} \lambda^{n-i} \boldsymbol{x}(i) \boldsymbol{x}^{\mathrm{H}}(i), \quad \boldsymbol{r}(n)=\sum_{i=0}^{n} \lambda^{n-i} \boldsymbol{x}(i) y^{*}(i)</script><p>可以看到，$\lambda=1$对应的就是最小二乘思想。回头看看之前分析的LMS以及NLMS，用的是随机梯度下降的思想，这是RLS与LMS很明显的不同点。<br>由于$x(i)$、$y(i)$时刻在变换，最优解如何更新呢？</p>
+<h2 id="迭代更新"><a href="#迭代更新" class="headerlink" title="迭代更新"></a>迭代更新</h2><p>矩阵求逆引理：<br>设A和B是两个M*M正定阵，它们之间的关系为：</p>
+<script type="math/tex; mode=display">\mathbf{A}=\mathbf{B}^{-1}+\mathbf{C D}^{-1} \mathbf{C}^{H}</script><p>其中，D是N<em>M正定阵，C是M</em>N矩阵。根据矩阵求逆引理，可将A的逆矩阵表示为：</p>
+<script type="math/tex; mode=display">\mathbf{A}^{-1}=\mathbf{B}-\mathbf{B C}\left(\mathbf{D}+\mathbf{C}^{H} \mathbf{B C}\right)^{-1} \mathbf{C}^{H} \mathbf{B}</script><p>定义逆矩阵：</p>
+<script type="math/tex; mode=display">\boldsymbol{P}(n)=\boldsymbol{R}^{-1}(n)</script><p>利用逆阵求逆引理：</p>
+<script type="math/tex; mode=display">\begin{aligned}
+\boldsymbol{P}(n) &=\frac{1}{\lambda}\left[\boldsymbol{P}(n-1)-\frac{\boldsymbol{P}(n-1) \boldsymbol{x}(n) \boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1)}{\lambda+\boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1) \boldsymbol{x}(n)}\right] \\
+&=\frac{1}{\lambda}\left[\boldsymbol{P}(n-1)-k(n) \boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1)\right]
+\end{aligned}</script><p>其中$k(n)$称为<strong>增益向量</strong>，由上式得出：</p>
+<script type="math/tex; mode=display">\boldsymbol{k}(n)=\frac{\boldsymbol{P}(n-1) \boldsymbol{x}(n)}{\lambda+\boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1) \boldsymbol{x}(n)}</script><p>借助迭代：</p>
+<script type="math/tex; mode=display">\boldsymbol{R}(n)=\lambda \boldsymbol{R}(n-1)+\boldsymbol{x}(n) \boldsymbol{x}^{\mathrm{H}}(n)</script><script type="math/tex; mode=display">\boldsymbol{r}(n)=\lambda \boldsymbol{r}(n-1)+\boldsymbol{x}(n) y^{*}(n)</script><p>可以得到权重的更新公式：</p>
+<script type="math/tex; mode=display">\boldsymbol{w}(n)=\boldsymbol{w}(n-1)+\boldsymbol{k}(n) \varepsilon^{*}(n)</script><p>其中$\varepsilon(n)$为估计误差：</p>
+<script type="math/tex; mode=display">\epsilon(n)=y(n)-\boldsymbol{w}^{\mathrm{H}}(n-1) \boldsymbol{x}(n)</script><p>至此实现RLS的整个步骤。</p>
+<h1 id="RLS应用实例"><a href="#RLS应用实例" class="headerlink" title="RLS应用实例"></a>RLS应用实例</h1><h2 id="算法步骤"><a href="#算法步骤" class="headerlink" title="算法步骤"></a>算法步骤</h2><p>结合上文的推导，给出RLS的迭代步骤：</p>
+<ol>
+<li>初始化<script type="math/tex; mode=display">\boldsymbol{w}(0)=\mathbf{0}, \boldsymbol{P}(0)=\delta^{-1} \boldsymbol{I} \quad(0<\delta \ll 1)</script>其中$\delta$为很小的正数，如1e-7；</li>
+<li>迭代更新<script type="math/tex; mode=display">\begin{array}{l}
+\varepsilon(n)=y(n)-\boldsymbol{w}^{\mathrm{H}}(n-1) \boldsymbol{x}(n) \\
+\boldsymbol{k}(n)=\frac{\boldsymbol{P}(n-1) \boldsymbol{x}(n)}{\lambda+\boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1) \boldsymbol{x}(n)} \\
+\boldsymbol{P}(n)=\frac{1}{\lambda}\left[\boldsymbol{P}(n-1)-\boldsymbol{k}(n) \boldsymbol{x}^{\mathrm{H}}(n) \boldsymbol{P}(n-1)\right] \\
+\boldsymbol{w}(n)=\boldsymbol{w}(n-1)+\boldsymbol{k}(n) \varepsilon^{*}(n)
+\end{array}</script></li>
+</ol>
+<h2 id="代码应用"><a href="#代码应用" class="headerlink" title="代码应用"></a>代码应用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">function [e,w]&#x3D;rls(lambda,M,u,d,delta)</span><br><span class="line">% recursive least squares,rls.</span><br><span class="line">w&#x3D;zeros(M,1);</span><br><span class="line">P&#x3D;eye(M)&#x2F;delta;</span><br><span class="line">u&#x3D;u(:);</span><br><span class="line">d&#x3D;d(:);</span><br><span class="line">% input signal length</span><br><span class="line">N&#x3D;length(u);</span><br><span class="line">% error vector</span><br><span class="line">e&#x3D;d.&#39;;</span><br><span class="line">% Step2: Loop, RLS</span><br><span class="line">for n&#x3D;M:N</span><br><span class="line">    uvec&#x3D;u(n:-1:n-M+1);</span><br><span class="line">    e(n)&#x3D;d(n)-w&#39;*uvec;</span><br><span class="line">    k&#x3D;lambda^(-1)*P*uvec&#x2F;(1+lambda^(-1)*uvec&#39;*P*uvec);</span><br><span class="line">    P&#x3D;lambda^(-1)*P-lambda^(-1)*k*uvec&#39;*P;</span><br><span class="line">    w&#x3D;w+k*conj(e(n));</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>应用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[s, fs, bits] &#x3D; wavread(filename);         </span><br><span class="line">s&#x3D;s-mean(s);                          </span><br><span class="line">s&#x3D;s&#x2F;max(abs(s));                      </span><br><span class="line">N&#x3D;length(s);                           </span><br><span class="line">time&#x3D;(0:N-1)&#x2F;fs;                      </span><br><span class="line">clean&#x3D;s&#39;;</span><br><span class="line">ref_noise&#x3D;.1*randn(1,length(s));</span><br><span class="line">mixed &#x3D; clean+ref_noise;</span><br><span class="line">mu&#x3D;0.05;M&#x3D;2;espon&#x3D;1e-4;</span><br><span class="line">% [en,wn,yn]&#x3D;lmsFunc(mu,M,ref_noise,mixed);</span><br><span class="line">% [en,wn,yn]&#x3D;nlmsFunc(mu,M,ref_noise,mixed,espon);</span><br><span class="line">delta &#x3D; 1e-7;</span><br><span class="line">lambda &#x3D; 1;</span><br><span class="line">[en,w]&#x3D;rls(lambda,M,ref_noise,mixed,delta);</span><br></pre></td></tr></table></figure><br>对应结果图：<br><img src="/images/RLS.png" alt="img"><br>可以看出不像NLMS/LMS有一个慢速收敛的过程，RLS在开始阶段就得到较好的降噪。</p>
+<h2 id="对比LMS"><a href="#对比LMS" class="headerlink" title="对比LMS"></a>对比LMS</h2><p>与LMS对比，可以观察到RLS的几点特性：</p>
+<ul>
+<li>平稳环境λ=1，其实是最小二乘的思想；LMS/NLMS是随机梯度下降思想；</li>
+<li>最小二乘是直接得出结果，随机梯度下降收敛慢，因此RLS比LMS/NLMS收敛快一个数量级；</li>
+</ul>
+
+    </div>
+
+
+  <div>
+	
+<div style="text-align:center;color: #ccc;font-size:14px;">
+	------ 本文结束<i class="fa fa-paw"></i>感谢您的阅读 ------</div>
+
+  </div>
+
+
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/57993.html" rel="prev" title="稳健矢量最优化自适应波束形成">
+      <i class="fa fa-chevron-left"></i> 稳健矢量最优化自适应波束形成
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/40627.html" rel="next" title="5G Massive MIMO">
+      5G Massive MIMO <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RLS原理"><span class="nav-number">1.</span> <span class="nav-text">RLS原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述"><span class="nav-number">1.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#迭代更新"><span class="nav-number">1.2.</span> <span class="nav-text">迭代更新</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RLS应用实例"><span class="nav-number">2.</span> <span class="nav-text">RLS应用实例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#算法步骤"><span class="nav-number">2.1.</span> <span class="nav-text">算法步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码应用"><span class="nav-number">2.2.</span> <span class="nav-text">代码应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对比LMS"><span class="nav-number">2.3.</span> <span class="nav-text">对比LMS</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Tan Jialin"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Tan Jialin</p>
+  <div class="site-description" itemprop="description">一切都是瞬间，一切都会过去</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tanjialin" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tanjialin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tanjialin@msn.com" title="E-Mail → mailto:tanjialin@msn.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://xiechao.now.sh/" title="https:&#x2F;&#x2F;xiechao.now.sh&#x2F;" rel="noopener" target="_blank">Xiechao</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.ekuibu.com/" title="https:&#x2F;&#x2F;www.ekuibu.com&#x2F;" rel="noopener" target="_blank">jinhui</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.ccyh.xyz/" title="https:&#x2F;&#x2F;www.ccyh.xyz&#x2F;" rel="noopener" target="_blank">Liam</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tan Jialin</span>
+</div>
+
+<!--页面点击小红心-->
+<script type="text/javascript" src="/love.js"></script>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+    <script defer src="/lib/three/canvas_lines.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'iy1RhKLFfKMHliqSI1cbvoKG-gzGzoHsz',
+      appKey     : 'MgmMstLkUs1uzCA88oTGeu7X',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>
