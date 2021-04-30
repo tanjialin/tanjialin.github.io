@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>声学照相机</title>
+    <url>/posts/38599.html</url>
+    <content><![CDATA[<p>利用传声器阵列测量一定范围内的声场分布的专用设备，可用于测量物体发出的声音的位置和声音辐射的状态，并用云图方式显示出直观的图像，即声成像测量</p>
+<a id="more"></a>
+<p>本文完全自研，与任何项目无关联</p>
+<h1 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h1><ol>
+<li>时频图：直观展示声源频率成分，辅助用户分析判断异响类型</li>
+<li>频率调整：可定位不同频率声源，通过调整频段过滤出特定频段的声音，有效排除环境干扰快速定位</li>
+<li>定向拾音/定向抑制：在定位到声音异常的位置之后，增强该特定位置的声音，方便根据该声音的频率音调等特点推测异常的类型。同时可抑制其他方向的噪声干扰</li>
+<li>分贝测量：可测量指定位置的分贝和距离，辅助判断声源情况</li>
+<li>色带调节：调节热力图成像的分贝范围，可删减或扩大展示范围</li>
+</ol>
+<h1 id="麦克风设计"><a href="#麦克风设计" class="headerlink" title="麦克风设计"></a>麦克风设计</h1><h1 id="波束设计"><a href="#波束设计" class="headerlink" title="波束设计"></a>波束设计</h1><h1 id="算法设计"><a href="#算法设计" class="headerlink" title="算法设计"></a>算法设计</h1>]]></content>
+      <categories>
+        <category>信号处理</category>
+      </categories>
+  </entry>
+  <entry>
     <title>矩阵奇异值分解</title>
     <url>/posts/33822.html</url>
     <content><![CDATA[<p>矩阵的奇异值分解（<em>singular value decomposition</em>，简称SVD）是线性代数中很重要的内容，并且奇异值分解过程也是线性代数中相似对角化分解（也被称为特征值分解，<em>eigenvalue decomposition</em>，简称EVD）的延伸。因此，以下将从线性代数中最基础的矩阵分解开始讲起，引出奇异值分解的定义，并最终给出奇异值分解的低秩逼近问题相关的证明过程。 </p>
