@@ -205,19 +205,6 @@ a_{0}+a_{1} x_{M}+a_{2} x_{M}^{2}+\ldots a_{N} x_{M}^{N}-y_{M}=\varepsilon_{M}
       </categories>
   </entry>
   <entry>
-    <title>MATLAB按数字顺序读取文件</title>
-    <url>/posts/12218.html</url>
-    <content><![CDATA[<p>最近手上一个项目需要生成一个超大文件，但是内存不够需要在超算分散运行，生成了大量的散碎文件最终需要拼凑，以下代码可以将文件按自然数顺序排序，并且将矩阵在第三维度进行拼凑</p>
-<a id="more"></a>
-<h2 id="MATLAB按数字顺序读取文件"><a href="#MATLAB按数字顺序读取文件" class="headerlink" title="MATLAB按数字顺序读取文件"></a>MATLAB按数字顺序读取文件</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">clc</span><br><span class="line">clear all</span><br><span class="line"></span><br><span class="line">dbstop if error</span><br><span class="line"></span><br><span class="line">trainPath&#x3D;&#39;E:\project\16面阵\file7\&#39;;  </span><br><span class="line">train  &#x3D; dir([trainPath &#39;*.mat&#39;]);</span><br><span class="line">train_num &#x3D; length(train);</span><br><span class="line">data_all&#x3D;[];</span><br><span class="line"></span><br><span class="line">sort_nat_name&#x3D;sort_mat(&#123;train.name&#125;);   </span><br><span class="line"> </span><br><span class="line">for i&#x3D;1:train_num</span><br><span class="line">  data &#x3D; load(sort_nat_name&#123;i&#125;); </span><br><span class="line">  data_matx &#x3D; cell2mat(struct2cell(data));</span><br><span class="line">  if i &#x3D;&#x3D; 1</span><br><span class="line">      data_all(:,:,size(data_all,3):size(data_matx,3)) &#x3D; data_matx;   </span><br><span class="line">  else</span><br><span class="line">      data_all(:,:,size(data_all,3) + 1:size(data_all,3)+size(data_matx,3)) &#x3D; data_matx;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">function [cs,index] &#x3D; sort_mat(c,mode)</span><br><span class="line"></span><br><span class="line">if nargin &lt; 2</span><br><span class="line">    mode &#x3D; &#39;ascend&#39;;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">modes &#x3D; strcmpi(mode,&#123;&#39;ascend&#39;,&#39;descend&#39;&#125;);</span><br><span class="line">is_descend &#x3D; modes(2);</span><br><span class="line">if ~any(modes)</span><br><span class="line">    error(&#39;sort_nat:sortDirection&#39;,...</span><br><span class="line">        &#39;sorting direction must be &#39;&#39;ascend&#39;&#39; or &#39;&#39;descend&#39;&#39;.&#39;)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">c2 &#x3D; regexprep(c,&#39;\d+&#39;,&#39;0&#39;);</span><br><span class="line"></span><br><span class="line">s1 &#x3D; char(c2);</span><br><span class="line">z &#x3D; s1 &#x3D;&#x3D; &#39;0&#39;;</span><br><span class="line"></span><br><span class="line">[digruns,first,last] &#x3D; regexp(c,&#39;\d+&#39;,&#39;match&#39;,&#39;start&#39;,&#39;end&#39;);</span><br><span class="line"></span><br><span class="line">num_str &#x3D; length(c);</span><br><span class="line">max_len &#x3D; size(s1,2);</span><br><span class="line">num_val &#x3D; NaN(num_str,max_len);</span><br><span class="line">num_dig &#x3D; NaN(num_str,max_len);</span><br><span class="line">for i &#x3D; 1:num_str</span><br><span class="line">    num_val(i,z(i,:)) &#x3D; sscanf(sprintf(&#39;%s &#39;,digruns&#123;i&#125;&#123;:&#125;),&#39;%f&#39;);</span><br><span class="line">    num_dig(i,z(i,:)) &#x3D; last&#123;i&#125; - first&#123;i&#125; + 1;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">activecols &#x3D; reshape(find(~all(isnan(num_val))),1,[]);</span><br><span class="line">n &#x3D; length(activecols);</span><br><span class="line"></span><br><span class="line">numcols &#x3D; activecols + (1:2:2*n);</span><br><span class="line"></span><br><span class="line">ndigcols &#x3D; numcols + 1;</span><br><span class="line"></span><br><span class="line">charcols &#x3D; true(1,max_len + 2*n);</span><br><span class="line">charcols(numcols) &#x3D; false;</span><br><span class="line">charcols(ndigcols) &#x3D; false;</span><br><span class="line"></span><br><span class="line">comp &#x3D; zeros(num_str,max_len + 2*n);</span><br><span class="line">comp(:,charcols) &#x3D; double(s1);</span><br><span class="line">comp(:,numcols) &#x3D; num_val(:,activecols);</span><br><span class="line">comp(:,ndigcols) &#x3D; num_dig(:,activecols);</span><br><span class="line"></span><br><span class="line">[unused,index] &#x3D; sortrows(comp);</span><br><span class="line">if is_descend</span><br><span class="line">    index &#x3D; index(end:-1:1);</span><br><span class="line">end</span><br><span class="line">index &#x3D; reshape(index,size(c));</span><br><span class="line">cs &#x3D; c(index);</span><br><span class="line">end</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>MATLAB</category>
-      </categories>
-      <tags>
-        <tag>MATLAB</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Markdown编辑器</title>
     <url>/posts/13670.html</url>
     <content><![CDATA[<p>阅读这篇文章，了解一下Markdown的基本语法知识。</p>
@@ -334,6 +321,19 @@ a_{0}+a_{1} x_{M}+a_{2} x_{M}^{2}+\ldots a_{N} x_{M}^{N}-y_{M}=\varepsilon_{M}
       </tags>
   </entry>
   <entry>
+    <title>MATLAB按数字顺序读取文件</title>
+    <url>/posts/12218.html</url>
+    <content><![CDATA[<p>最近手上一个项目需要生成一个超大文件，但是内存不够需要在超算分散运行，生成了大量的散碎文件最终需要拼凑，以下代码可以将文件按自然数顺序排序，并且将矩阵在第三维度进行拼凑</p>
+<a id="more"></a>
+<h2 id="MATLAB按数字顺序读取文件"><a href="#MATLAB按数字顺序读取文件" class="headerlink" title="MATLAB按数字顺序读取文件"></a>MATLAB按数字顺序读取文件</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">clc</span><br><span class="line">clear all</span><br><span class="line"></span><br><span class="line">dbstop if error</span><br><span class="line"></span><br><span class="line">trainPath&#x3D;&#39;E:\project\16面阵\file7\&#39;;  </span><br><span class="line">train  &#x3D; dir([trainPath &#39;*.mat&#39;]);</span><br><span class="line">train_num &#x3D; length(train);</span><br><span class="line">data_all&#x3D;[];</span><br><span class="line"></span><br><span class="line">sort_nat_name&#x3D;sort_mat(&#123;train.name&#125;);   </span><br><span class="line"> </span><br><span class="line">for i&#x3D;1:train_num</span><br><span class="line">  data &#x3D; load(sort_nat_name&#123;i&#125;); </span><br><span class="line">  data_matx &#x3D; cell2mat(struct2cell(data));</span><br><span class="line">  if i &#x3D;&#x3D; 1</span><br><span class="line">      data_all(:,:,size(data_all,3):size(data_matx,3)) &#x3D; data_matx;   </span><br><span class="line">  else</span><br><span class="line">      data_all(:,:,size(data_all,3) + 1:size(data_all,3)+size(data_matx,3)) &#x3D; data_matx;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">function [cs,index] &#x3D; sort_mat(c,mode)</span><br><span class="line"></span><br><span class="line">if nargin &lt; 2</span><br><span class="line">    mode &#x3D; &#39;ascend&#39;;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">modes &#x3D; strcmpi(mode,&#123;&#39;ascend&#39;,&#39;descend&#39;&#125;);</span><br><span class="line">is_descend &#x3D; modes(2);</span><br><span class="line">if ~any(modes)</span><br><span class="line">    error(&#39;sort_nat:sortDirection&#39;,...</span><br><span class="line">        &#39;sorting direction must be &#39;&#39;ascend&#39;&#39; or &#39;&#39;descend&#39;&#39;.&#39;)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">c2 &#x3D; regexprep(c,&#39;\d+&#39;,&#39;0&#39;);</span><br><span class="line"></span><br><span class="line">s1 &#x3D; char(c2);</span><br><span class="line">z &#x3D; s1 &#x3D;&#x3D; &#39;0&#39;;</span><br><span class="line"></span><br><span class="line">[digruns,first,last] &#x3D; regexp(c,&#39;\d+&#39;,&#39;match&#39;,&#39;start&#39;,&#39;end&#39;);</span><br><span class="line"></span><br><span class="line">num_str &#x3D; length(c);</span><br><span class="line">max_len &#x3D; size(s1,2);</span><br><span class="line">num_val &#x3D; NaN(num_str,max_len);</span><br><span class="line">num_dig &#x3D; NaN(num_str,max_len);</span><br><span class="line">for i &#x3D; 1:num_str</span><br><span class="line">    num_val(i,z(i,:)) &#x3D; sscanf(sprintf(&#39;%s &#39;,digruns&#123;i&#125;&#123;:&#125;),&#39;%f&#39;);</span><br><span class="line">    num_dig(i,z(i,:)) &#x3D; last&#123;i&#125; - first&#123;i&#125; + 1;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">activecols &#x3D; reshape(find(~all(isnan(num_val))),1,[]);</span><br><span class="line">n &#x3D; length(activecols);</span><br><span class="line"></span><br><span class="line">numcols &#x3D; activecols + (1:2:2*n);</span><br><span class="line"></span><br><span class="line">ndigcols &#x3D; numcols + 1;</span><br><span class="line"></span><br><span class="line">charcols &#x3D; true(1,max_len + 2*n);</span><br><span class="line">charcols(numcols) &#x3D; false;</span><br><span class="line">charcols(ndigcols) &#x3D; false;</span><br><span class="line"></span><br><span class="line">comp &#x3D; zeros(num_str,max_len + 2*n);</span><br><span class="line">comp(:,charcols) &#x3D; double(s1);</span><br><span class="line">comp(:,numcols) &#x3D; num_val(:,activecols);</span><br><span class="line">comp(:,ndigcols) &#x3D; num_dig(:,activecols);</span><br><span class="line"></span><br><span class="line">[unused,index] &#x3D; sortrows(comp);</span><br><span class="line">if is_descend</span><br><span class="line">    index &#x3D; index(end:-1:1);</span><br><span class="line">end</span><br><span class="line">index &#x3D; reshape(index,size(c));</span><br><span class="line">cs &#x3D; c(index);</span><br><span class="line">end</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>MATLAB</category>
+      </categories>
+      <tags>
+        <tag>MATLAB</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>音频系统</title>
     <url>/posts/22200.html</url>
     <content><![CDATA[<div id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="OOPS, these decrypted content may changed, but you can still have a look.">
@@ -415,9 +415,67 @@ a(\theta), & \theta \in \Theta_{P} \\
         <category>信号处理</category>
       </categories>
       <tags>
-        <tag>阵列信号处理</tag>
         <tag>凸优化</tag>
+        <tag>阵列信号处理</tag>
         <tag>滤波器</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>svd符号随机性问题及解决方案</title>
+    <url>/posts/33336.html</url>
+    <content><![CDATA[<a id="more"></a>
+<h1 id="SVD性质"><a href="#SVD性质" class="headerlink" title="SVD性质"></a>SVD性质</h1><p>关于SVD定义，计算，请参考[1]。<br>对于奇异值,它与特征分解中的特征值类似，在奇异值矩阵中也是按照从大到小排列，而且奇异值的下降特别的快，在很多情况下，前10%甚至1%的奇异值的和就占了全部的奇异值之和的99%以上的比例。<br>即也可以用最大的k个的奇异值和对应的左右奇异向量来近似描述矩阵：</p>
+<script type="math/tex; mode=display">
+A_{m \times n}=U_{m \times m} \Sigma_{m \times n} V_{n \times n}^{T} \approx U_{m \times k} \Sigma_{k \times k} V_{k \times n}^{T}</script><p>其中k比𝑛小很多(m&gt;n&gt;k)，也就是一个大的矩阵𝐴可以用三个小的矩阵 𝑈𝑚×𝑘 Σ𝑘×𝑘 𝑉𝑘×𝑛𝑇来表示。如下图所示，现在我们的矩阵A只需要灰色的部分的三个小矩阵就可以近似描述了<br><img src="/images/svd_express.png" alt="img"><br>由于这个重要的性质，SVD可以用于PCA降维，来做数据压缩和去噪。同时，介绍这个性质在后面解决符号模糊问题中有重要应用。</p>
+<h1 id="符号随机性问题介绍"><a href="#符号随机性问题介绍" class="headerlink" title="符号随机性问题介绍"></a>符号随机性问题介绍</h1><p>利用上面推出的SVD性质，即：</p>
+<script type="math/tex; mode=display">
+A_{m \times n}=U_{m \times m} \Sigma_{m \times n} V_{n \times n}^{T} \approx U_{m \times k} \Sigma_{k \times k} V_{k \times n}^{T}</script><p>改写成如下向量形式：</p>
+<script type="math/tex; mode=display">
+A_{m \times n} \approx \sum_{k=1}^{K} \sigma_{k} \mathbf{u}_{k} \mathbf{v}_{k}^{\mathrm{T}}</script><p>对每一组奇异向量满足如下：</p>
+<script type="math/tex; mode=display">
+\sigma_{k} \mathbf{u}_{k} \mathbf{v}_{k}^{\mathrm{T}}=\sigma_{k}\left(-\mathbf{u}_{k}\right)\left(-\mathbf{v}_{k}\right)^{\mathrm{T}}</script><p>这样SVD分解本身不提供计算每个特征向量符号的方法。在实际算法实现时，这种不确定性是继承的，因此单个奇异向量有一个“任意”符号。这个符号是计算分解稳定数据时的副产品，所以确定的符号跟随机分配没有区别，因此，就分解所代表的数据而言，符号没有任何意义的解释。</p>
+<h1 id="符号随机性影响"><a href="#符号随机性影响" class="headerlink" title="符号随机性影响"></a>符号随机性影响</h1><h2 id="正数数值影响"><a href="#正数数值影响" class="headerlink" title="正数数值影响"></a>正数数值影响</h2><p>虽然上面的问题在数学上没有任何影响，但是在实际应用中有非常大的影响。<br>下列数据表格为不同国家，三种酒的平均消费量每年，人均预期寿命，心脏病发病率，具体如下：<br><img src="/images/SVD介绍及符号模糊问题_example1.jpg" alt="img"><br>A矩阵和Matlab结果如下：</p>
+<script type="math/tex; mode=display">
+A=\left(\begin{array}{lcccc}
+2.5000 & 63.5000 & 40.1000 & 78.0000 & 61.1000 \\
+0.9000 & 58.0000 & 25.1000 & 78.0000 & 94.1000 \\
+1.7000 & 46.0000 & 65.0000 & 78.0000 & 106.4000 \\
+1.2000 & 15.7000 & 102.1000 & 78.0000 & 173.0000 \\
+1.5000 & 12.2000 & 100.0000 & 77.0000 & 199.7000 \\
+2.0000 & 8.9000 & 87.8000 & 76.0000 & 176.0000 \\
+3.8000 & 2.7000 & 17.1000 & 69.0000 & 373.6000 \\
+1.0000 & 1.7000 & 140.0000 & 73.0000 & 283.7000 \\
+2.1000 & 1.0000 & 55.0000 & 79.0000 & 34.7000 \\
+0.8000 & 0.2000 & 50.4000 & 73.0000 & 36.4000
+\end{array}\right)</script><p><img src="/images/SVD介绍及符号模糊问题解决_result.jpg" alt="img"><br>尽管A是很明显的正数数据，但是奇异向量仍然全部是负号。事实上，现在matlab 使用的线性代数包对 SVD 的实现，来自全正矩阵的第一个奇异向量总是有全负的元素。</p>
+<h2 id="音频影响"><a href="#音频影响" class="headerlink" title="音频影响"></a>音频影响</h2><p>在音频数据处理中，比如使用MVDR做如下对比实验：</p>
+<ol>
+<li>正常使用 Matlab中SVD函数结果生成音频。</li>
+<li>将SVD结果符号全部翻转生成音频。</li>
+<li>随机翻转SVD结果符号生成音频。<br>1/2对比：<br><img src="/images/SVD介绍及符号模糊问题解决_1_1.jpg" alt="img"><br><img src="/images/SVD介绍及符号模糊问题解决_1_2.jpg" alt="img"><br>1/3对比：<br><img src="/images/SVD介绍及符号模糊问题解决_2_1.jpg" alt="img"><br><img src="/images/SVD介绍及符号模糊问题解决_2_2.jpg" alt="img"><br>从数学的角度是没有办法避免成对奇异向量乘法项符号的不确定性。因此数学不能指导做符号选择。但是，数据分析不仅仅只能用代数。为了确认奇异向量的符号，建议它与所表示的其他大部分向量的方向相同。从几何学上解释，向量应该指向相同的方向，而不是相反的。<h1 id="解决方法介绍"><a href="#解决方法介绍" class="headerlink" title="解决方法介绍"></a>解决方法介绍</h1>举个例子：下图为二维数据的一些例子和相应的第一个右奇异向量和修正后的向量。普通细线为所表示的多数向量，粗虚线是SVD后的第一右奇异向量，粗实线是矫正后的向量。<br><img src="/images/SVD介绍及符号模糊问题解决_vector.jpg" alt="img"><h2 id="奇异向量符号确定算法"><a href="#奇异向量符号确定算法" class="headerlink" title="奇异向量符号确定算法"></a>奇异向量符号确定算法</h2>确定符号可以由奇异向量和单个独立数据的内积符号确定。单个数据向量可能会有不同的方向，但是选择大多数向量的方向是比较直观和实用的。这可以通过计算有符号内积的和的符号来找到。<br>举个例子，我们希望确定第k个左奇异向量符号。<br>理想的情况下如果奇异向量同数据列向量有正确的符号关系，我们有如下关系：<script type="math/tex; mode=display">
+\left(\mathbf{u}_{k}\right)^{\top}\left(\mathrm{a}_{n}\right)>0 \text { for } n=1, \ldots, N</script>实际情况下，我们选择最大的符号：<script type="math/tex; mode=display">
+s=\sum_{n=1}^{N} \operatorname{sign}\left(\mathbf{u}_{k}^{\top} \mathbf{a}_{n}\right)\left(\mathbf{u}_{k}^{\top} \mathbf{a}_{n}\right)^{2}</script>如果用这种方法计算左右奇异向量的两个最优符号不一致，则可以通过选择左右奇异向量绝对值最高的符号来确定整体符号。<h2 id="算法步骤"><a href="#算法步骤" class="headerlink" title="算法步骤"></a>算法步骤</h2>输入：数据矩阵、待确定符号的第k个左右奇异向量<br>输出：矫正符号后的左右奇异向量</li>
+<li>求左奇异向量符号<script type="math/tex; mode=display">
+s_{l e f t}=\sum_{n=1}^{N} \operatorname{sign}\left(\mathbf{u}_{k}^{\mathrm{T}} \mathbf{a}_{n}\right)\left(\mathbf{u}_{k}^{\mathrm{T}} \mathbf{a}_{n}\right)^{2}</script></li>
+<li>求右奇异向量符号<script type="math/tex; mode=display">
+s_{\text {right }}=\sum_{m=1}^{M} \operatorname{sign}\left(\mathbf{v}_{k}^{\mathrm{T}} \mathbf{a}_{m}\right)\left(\mathbf{v}_{k}^{\mathrm{T}} \mathbf{a}_{m}\right)^{2}</script></li>
+<li>确定符号<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">if ((s_left)*(s_right))&lt;0</span><br><span class="line">&#123;</span><br><span class="line">  if(abs(s_left)&lt;abs(s_right))</span><br><span class="line">  &#123;</span><br><span class="line">    s_left &#x3D; -(s_left);</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    s_right &#x3D; -(s_right);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+使用该方法将MVDR中的SVD结果进行校验，音频对比结果如下：<br><img src="/images/SVD介绍及符号模糊问题解决_wav.jpg" alt="img"></li>
+</ol>
+<h1 id="实践及结论"><a href="#实践及结论" class="headerlink" title="实践及结论"></a>实践及结论</h1><p>Matlab 中使用的 <a href="http://www.netlib.org/lapack/lug/node53.html#tabcompsvd" target="_blank" rel="noopener">LAPACK Linear Algebra PACKage</a>求解 SVD 方法会按照它内置的逻辑将奇异向量的方向尽可能的统一（ 测试音频中有 86.75% 是一致的，整体符号相反），但是可能出现整体相反的情况。<br>符号模糊问题解决算法的意义：</p>
+<ol>
+<li>可以从将SVD的输出进行校验，方法可以跨平台移植，任何平台上，不同实现方法的 SVD通过该方法，都可以获得接近100%一致的方向性。优化版本的SVD函数可以在项目中使用。</li>
+<li>虽然音频质量可能没有质的飞越，但是波形相位得到校正，SVD方向准确率提升一定百分比，使用数学方法带来的不确定性问题得到严谨的解释和解决。</li>
+</ol>
+<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><p>[1] <a href="https://www.cnblogs.com/pinard/p/6251584.html" target="_blank" rel="noopener">博客</a><br>[2] 线性代数及其应用.第三版 David C.Lay 著</p>
+]]></content>
+      <categories>
+        <category>数学</category>
+        <category>工程对点</category>
+      </categories>
+      <tags>
+        <tag>数学</tag>
+        <tag>Matlab仿真</tag>
       </tags>
   </entry>
   <entry>
@@ -581,8 +639,8 @@ R { \rm { = } } \sum\limits_ { i = 1 } ^M { { \lambda _i } }  { e_i } e_i^H</scr
         <category>信号处理</category>
       </categories>
       <tags>
-        <tag>DOA</tag>
         <tag>Matlab仿真</tag>
+        <tag>DOA</tag>
       </tags>
   </entry>
   <entry>

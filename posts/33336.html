@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="jcM1vUOOpm-NvMdll5ye39GGKze3JHCMWwQfmKhvNkI" />
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.tanjialin.cn","root":"/","scheme":"Pisces","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+<link href="//cdn.bootcss.com/animate.css/3.5.0/animate.min.css" rel="stylesheet">
+  <meta name="description" content="SVD性质关于SVD定义，计算，请参考[1]。对于奇异值,它与特征分解中的特征值类似，在奇异值矩阵中也是按照从大到小排列，而且奇异值的下降特别的快，在很多情况下，前10%甚至1%的奇异值的和就占了全部的奇异值之和的99%以上的比例。即也可以用最大的k个的奇异值和对应的左右奇异向量来近似描述矩阵：  A_{m \times n}&#x3D;U_{m \times m} \Sigma_{m \times n}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="svd符号随机性问题及解决方案">
+<meta property="og:url" content="https://www.tanjialin.cn/posts/33336.html">
+<meta property="og:site_name" content="明月入怀">
+<meta property="og:description" content="SVD性质关于SVD定义，计算，请参考[1]。对于奇异值,它与特征分解中的特征值类似，在奇异值矩阵中也是按照从大到小排列，而且奇异值的下降特别的快，在很多情况下，前10%甚至1%的奇异值的和就占了全部的奇异值之和的99%以上的比例。即也可以用最大的k个的奇异值和对应的左右奇异向量来近似描述矩阵：  A_{m \times n}&#x3D;U_{m \times m} \Sigma_{m \times n}">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.tanjialin.cn/images/svd_express.png">
+<meta property="og:image" content="https://www.tanjialin.cn/images/SVD%E4%BB%8B%E7%BB%8D%E5%8F%8A%E7%AC%A6%E5%8F%B7%E6%A8%A1%E7%B3%8A%E9%97%AE%E9%A2%98_example1.jpg">
+<meta property="og:image" content="https://www.tanjialin.cn/images/SVD%E4%BB%8B%E7%BB%8D%E5%8F%8A%E7%AC%A6%E5%8F%B7%E6%A8%A1%E7%B3%8A%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3_result.jpg">
+<meta property="og:image" content="https://www.tanjialin.cn/images/SVD%E4%BB%8B%E7%BB%8D%E5%8F%8A%E7%AC%A6%E5%8F%B7%E6%A8%A1%E7%B3%8A%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3_1_1.jpg">
+<meta property="og:image" content="https://www.tanjialin.cn/images/SVD%E4%BB%8B%E7%BB%8D%E5%8F%8A%E7%AC%A6%E5%8F%B7%E6%A8%A1%E7%B3%8A%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3_1_2.jpg">
+<meta property="og:image" content="https://www.tanjialin.cn/images/SVD%E4%BB%8B%E7%BB%8D%E5%8F%8A%E7%AC%A6%E5%8F%B7%E6%A8%A1%E7%B3%8A%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3_2_1.jpg">
+<meta property="og:image" content="https://www.tanjialin.cn/images/SVD%E4%BB%8B%E7%BB%8D%E5%8F%8A%E7%AC%A6%E5%8F%B7%E6%A8%A1%E7%B3%8A%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3_2_2.jpg">
+<meta property="og:image" content="https://www.tanjialin.cn/images/SVD%E4%BB%8B%E7%BB%8D%E5%8F%8A%E7%AC%A6%E5%8F%B7%E6%A8%A1%E7%B3%8A%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3_vector.jpg">
+<meta property="og:image" content="https://www.tanjialin.cn/images/SVD%E4%BB%8B%E7%BB%8D%E5%8F%8A%E7%AC%A6%E5%8F%B7%E6%A8%A1%E7%B3%8A%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3_wav.jpg">
+<meta property="article:published_time" content="2019-06-27T13:42:20.000Z">
+<meta property="article:modified_time" content="2021-07-28T05:58:13.923Z">
+<meta property="article:author" content="Tan Jialin">
+<meta property="article:tag" content="数学">
+<meta property="article:tag" content="Matlab仿真">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.tanjialin.cn/images/svd_express.png">
+
+<link rel="canonical" href="https://www.tanjialin.cn/posts/33336.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>svd符号随机性问题及解决方案 | 明月入怀</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/rss2.xml" title="明月入怀" type="application/rss+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">明月入怀</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">积跬步以至千里</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-留言">
+
+    <a href="/guestbook" rel="section"><i class="fa fa-fw fa-newspaper-o"></i>留言</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.tanjialin.cn/posts/33336.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Tan Jialin">
+      <meta itemprop="description" content="一切都是瞬间，一切都会过去">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="明月入怀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          svd符号随机性问题及解决方案
+        </h1>
+
+        <div class="post-meta">
+
+			
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-06-27 21:42:20" itemprop="dateCreated datePublished" datetime="2019-06-27T21:42:20+08:00">2019-06-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">数学</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E5%AD%A6/%E5%B7%A5%E7%A8%8B%E5%AF%B9%E7%82%B9/" itemprop="url" rel="index"><span itemprop="name">工程对点</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/posts/33336.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/33336.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <a id="more"></a>
+<h1 id="SVD性质"><a href="#SVD性质" class="headerlink" title="SVD性质"></a>SVD性质</h1><p>关于SVD定义，计算，请参考[1]。<br>对于奇异值,它与特征分解中的特征值类似，在奇异值矩阵中也是按照从大到小排列，而且奇异值的下降特别的快，在很多情况下，前10%甚至1%的奇异值的和就占了全部的奇异值之和的99%以上的比例。<br>即也可以用最大的k个的奇异值和对应的左右奇异向量来近似描述矩阵：</p>
+<script type="math/tex; mode=display">
+A_{m \times n}=U_{m \times m} \Sigma_{m \times n} V_{n \times n}^{T} \approx U_{m \times k} \Sigma_{k \times k} V_{k \times n}^{T}</script><p>其中k比𝑛小很多(m&gt;n&gt;k)，也就是一个大的矩阵𝐴可以用三个小的矩阵 𝑈𝑚×𝑘 Σ𝑘×𝑘 𝑉𝑘×𝑛𝑇来表示。如下图所示，现在我们的矩阵A只需要灰色的部分的三个小矩阵就可以近似描述了<br><img src="/images/svd_express.png" alt="img"><br>由于这个重要的性质，SVD可以用于PCA降维，来做数据压缩和去噪。同时，介绍这个性质在后面解决符号模糊问题中有重要应用。</p>
+<h1 id="符号随机性问题介绍"><a href="#符号随机性问题介绍" class="headerlink" title="符号随机性问题介绍"></a>符号随机性问题介绍</h1><p>利用上面推出的SVD性质，即：</p>
+<script type="math/tex; mode=display">
+A_{m \times n}=U_{m \times m} \Sigma_{m \times n} V_{n \times n}^{T} \approx U_{m \times k} \Sigma_{k \times k} V_{k \times n}^{T}</script><p>改写成如下向量形式：</p>
+<script type="math/tex; mode=display">
+A_{m \times n} \approx \sum_{k=1}^{K} \sigma_{k} \mathbf{u}_{k} \mathbf{v}_{k}^{\mathrm{T}}</script><p>对每一组奇异向量满足如下：</p>
+<script type="math/tex; mode=display">
+\sigma_{k} \mathbf{u}_{k} \mathbf{v}_{k}^{\mathrm{T}}=\sigma_{k}\left(-\mathbf{u}_{k}\right)\left(-\mathbf{v}_{k}\right)^{\mathrm{T}}</script><p>这样SVD分解本身不提供计算每个特征向量符号的方法。在实际算法实现时，这种不确定性是继承的，因此单个奇异向量有一个“任意”符号。这个符号是计算分解稳定数据时的副产品，所以确定的符号跟随机分配没有区别，因此，就分解所代表的数据而言，符号没有任何意义的解释。</p>
+<h1 id="符号随机性影响"><a href="#符号随机性影响" class="headerlink" title="符号随机性影响"></a>符号随机性影响</h1><h2 id="正数数值影响"><a href="#正数数值影响" class="headerlink" title="正数数值影响"></a>正数数值影响</h2><p>虽然上面的问题在数学上没有任何影响，但是在实际应用中有非常大的影响。<br>下列数据表格为不同国家，三种酒的平均消费量每年，人均预期寿命，心脏病发病率，具体如下：<br><img src="/images/SVD介绍及符号模糊问题_example1.jpg" alt="img"><br>A矩阵和Matlab结果如下：</p>
+<script type="math/tex; mode=display">
+A=\left(\begin{array}{lcccc}
+2.5000 & 63.5000 & 40.1000 & 78.0000 & 61.1000 \\
+0.9000 & 58.0000 & 25.1000 & 78.0000 & 94.1000 \\
+1.7000 & 46.0000 & 65.0000 & 78.0000 & 106.4000 \\
+1.2000 & 15.7000 & 102.1000 & 78.0000 & 173.0000 \\
+1.5000 & 12.2000 & 100.0000 & 77.0000 & 199.7000 \\
+2.0000 & 8.9000 & 87.8000 & 76.0000 & 176.0000 \\
+3.8000 & 2.7000 & 17.1000 & 69.0000 & 373.6000 \\
+1.0000 & 1.7000 & 140.0000 & 73.0000 & 283.7000 \\
+2.1000 & 1.0000 & 55.0000 & 79.0000 & 34.7000 \\
+0.8000 & 0.2000 & 50.4000 & 73.0000 & 36.4000
+\end{array}\right)</script><p><img src="/images/SVD介绍及符号模糊问题解决_result.jpg" alt="img"><br>尽管A是很明显的正数数据，但是奇异向量仍然全部是负号。事实上，现在matlab 使用的线性代数包对 SVD 的实现，来自全正矩阵的第一个奇异向量总是有全负的元素。</p>
+<h2 id="音频影响"><a href="#音频影响" class="headerlink" title="音频影响"></a>音频影响</h2><p>在音频数据处理中，比如使用MVDR做如下对比实验：</p>
+<ol>
+<li>正常使用 Matlab中SVD函数结果生成音频。</li>
+<li>将SVD结果符号全部翻转生成音频。</li>
+<li>随机翻转SVD结果符号生成音频。<br>1/2对比：<br><img src="/images/SVD介绍及符号模糊问题解决_1_1.jpg" alt="img"><br><img src="/images/SVD介绍及符号模糊问题解决_1_2.jpg" alt="img"><br>1/3对比：<br><img src="/images/SVD介绍及符号模糊问题解决_2_1.jpg" alt="img"><br><img src="/images/SVD介绍及符号模糊问题解决_2_2.jpg" alt="img"><br>从数学的角度是没有办法避免成对奇异向量乘法项符号的不确定性。因此数学不能指导做符号选择。但是，数据分析不仅仅只能用代数。为了确认奇异向量的符号，建议它与所表示的其他大部分向量的方向相同。从几何学上解释，向量应该指向相同的方向，而不是相反的。<h1 id="解决方法介绍"><a href="#解决方法介绍" class="headerlink" title="解决方法介绍"></a>解决方法介绍</h1>举个例子：下图为二维数据的一些例子和相应的第一个右奇异向量和修正后的向量。普通细线为所表示的多数向量，粗虚线是SVD后的第一右奇异向量，粗实线是矫正后的向量。<br><img src="/images/SVD介绍及符号模糊问题解决_vector.jpg" alt="img"><h2 id="奇异向量符号确定算法"><a href="#奇异向量符号确定算法" class="headerlink" title="奇异向量符号确定算法"></a>奇异向量符号确定算法</h2>确定符号可以由奇异向量和单个独立数据的内积符号确定。单个数据向量可能会有不同的方向，但是选择大多数向量的方向是比较直观和实用的。这可以通过计算有符号内积的和的符号来找到。<br>举个例子，我们希望确定第k个左奇异向量符号。<br>理想的情况下如果奇异向量同数据列向量有正确的符号关系，我们有如下关系：<script type="math/tex; mode=display">
+\left(\mathbf{u}_{k}\right)^{\top}\left(\mathrm{a}_{n}\right)>0 \text { for } n=1, \ldots, N</script>实际情况下，我们选择最大的符号：<script type="math/tex; mode=display">
+s=\sum_{n=1}^{N} \operatorname{sign}\left(\mathbf{u}_{k}^{\top} \mathbf{a}_{n}\right)\left(\mathbf{u}_{k}^{\top} \mathbf{a}_{n}\right)^{2}</script>如果用这种方法计算左右奇异向量的两个最优符号不一致，则可以通过选择左右奇异向量绝对值最高的符号来确定整体符号。<h2 id="算法步骤"><a href="#算法步骤" class="headerlink" title="算法步骤"></a>算法步骤</h2>输入：数据矩阵、待确定符号的第k个左右奇异向量<br>输出：矫正符号后的左右奇异向量</li>
+<li>求左奇异向量符号<script type="math/tex; mode=display">
+s_{l e f t}=\sum_{n=1}^{N} \operatorname{sign}\left(\mathbf{u}_{k}^{\mathrm{T}} \mathbf{a}_{n}\right)\left(\mathbf{u}_{k}^{\mathrm{T}} \mathbf{a}_{n}\right)^{2}</script></li>
+<li>求右奇异向量符号<script type="math/tex; mode=display">
+s_{\text {right }}=\sum_{m=1}^{M} \operatorname{sign}\left(\mathbf{v}_{k}^{\mathrm{T}} \mathbf{a}_{m}\right)\left(\mathbf{v}_{k}^{\mathrm{T}} \mathbf{a}_{m}\right)^{2}</script></li>
+<li>确定符号<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">if ((s_left)*(s_right))&lt;0</span><br><span class="line">&#123;</span><br><span class="line">  if(abs(s_left)&lt;abs(s_right))</span><br><span class="line">  &#123;</span><br><span class="line">    s_left &#x3D; -(s_left);</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    s_right &#x3D; -(s_right);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+使用该方法将MVDR中的SVD结果进行校验，音频对比结果如下：<br><img src="/images/SVD介绍及符号模糊问题解决_wav.jpg" alt="img"></li>
+</ol>
+<h1 id="实践及结论"><a href="#实践及结论" class="headerlink" title="实践及结论"></a>实践及结论</h1><p>Matlab 中使用的 <a href="http://www.netlib.org/lapack/lug/node53.html#tabcompsvd" target="_blank" rel="noopener">LAPACK Linear Algebra PACKage</a>求解 SVD 方法会按照它内置的逻辑将奇异向量的方向尽可能的统一（ 测试音频中有 86.75% 是一致的，整体符号相反），但是可能出现整体相反的情况。<br>符号模糊问题解决算法的意义：</p>
+<ol>
+<li>可以从将SVD的输出进行校验，方法可以跨平台移植，任何平台上，不同实现方法的 SVD通过该方法，都可以获得接近100%一致的方向性。优化版本的SVD函数可以在项目中使用。</li>
+<li>虽然音频质量可能没有质的飞越，但是波形相位得到校正，SVD方向准确率提升一定百分比，使用数学方法带来的不确定性问题得到严谨的解释和解决。</li>
+</ol>
+<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><p>[1] <a href="https://www.cnblogs.com/pinard/p/6251584.html" target="_blank" rel="noopener">博客</a><br>[2] 线性代数及其应用.第三版 David C.Lay 著</p>
+
+    </div>
+
+
+  <div>
+	
+<div style="text-align:center;color: #ccc;font-size:14px;">
+	------ 本文结束<i class="fa fa-paw"></i>感谢您的阅读 ------</div>
+
+  </div>
+
+
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E5%AD%A6/" rel="tag"><i class="fa fa-tag"></i>数学</a>
+              <a href="/tags/Matlab%E4%BB%BF%E7%9C%9F/" rel="tag"><i class="fa fa-tag"></i>Matlab仿真</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/18339.html" rel="prev" title="拉格朗日乘子法">
+      <i class="fa fa-chevron-left"></i> 拉格朗日乘子法
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/46762.html" rel="next" title="空域矩阵预滤波DOA估计">
+      空域矩阵预滤波DOA估计 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SVD性质"><span class="nav-number">1.</span> <span class="nav-text">SVD性质</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#符号随机性问题介绍"><span class="nav-number">2.</span> <span class="nav-text">符号随机性问题介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#符号随机性影响"><span class="nav-number">3.</span> <span class="nav-text">符号随机性影响</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正数数值影响"><span class="nav-number">3.1.</span> <span class="nav-text">正数数值影响</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#音频影响"><span class="nav-number">3.2.</span> <span class="nav-text">音频影响</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解决方法介绍"><span class="nav-number">4.</span> <span class="nav-text">解决方法介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#奇异向量符号确定算法"><span class="nav-number">4.1.</span> <span class="nav-text">奇异向量符号确定算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#算法步骤"><span class="nav-number">4.2.</span> <span class="nav-text">算法步骤</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实践及结论"><span class="nav-number">5.</span> <span class="nav-text">实践及结论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文献"><span class="nav-number">5.0.1.</span> <span class="nav-text">参考文献</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Tan Jialin"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Tan Jialin</p>
+  <div class="site-description" itemprop="description">一切都是瞬间，一切都会过去</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tanjialin" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tanjialin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tanjialin@msn.com" title="E-Mail → mailto:tanjialin@msn.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://xiechao.now.sh/" title="https:&#x2F;&#x2F;xiechao.now.sh&#x2F;" rel="noopener" target="_blank">Xiechao</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.ekuibu.com/" title="https:&#x2F;&#x2F;www.ekuibu.com&#x2F;" rel="noopener" target="_blank">jinhui</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.ccyh.xyz/" title="https:&#x2F;&#x2F;www.ccyh.xyz&#x2F;" rel="noopener" target="_blank">Liam</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tan Jialin</span>
+</div>
+
+<!--页面点击小红心-->
+<script type="text/javascript" src="/love.js"></script>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'iy1RhKLFfKMHliqSI1cbvoKG-gzGzoHsz',
+      appKey     : 'MgmMstLkUs1uzCA88oTGeu7X',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>
