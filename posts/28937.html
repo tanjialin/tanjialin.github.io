@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="jcM1vUOOpm-NvMdll5ye39GGKze3JHCMWwQfmKhvNkI" />
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.tanjialin.cn","root":"/","scheme":"Pisces","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+<link href="//cdn.bootcss.com/animate.css/3.5.0/animate.min.css" rel="stylesheet">
+  <meta name="description" content="了解shell中的通配符 熟悉grep、cut、sort等小工具和shell中的通配符的使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SHELL编程工具">
+<meta property="og:url" content="https://www.tanjialin.cn/posts/28937.html">
+<meta property="og:site_name" content="明月入怀">
+<meta property="og:description" content="了解shell中的通配符 熟悉grep、cut、sort等小工具和shell中的通配符的使用">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-02-11T02:27:38.000Z">
+<meta property="article:modified_time" content="2021-09-23T09:35:41.790Z">
+<meta property="article:author" content="Tan Jialin">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://www.tanjialin.cn/posts/28937.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SHELL编程工具 | 明月入怀</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/rss2.xml" title="明月入怀" type="application/rss+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">明月入怀</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">积跬步以至千里</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-留言">
+
+    <a href="/guestbook" rel="section"><i class="fa fa-fw fa-newspaper-o"></i>留言</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.tanjialin.cn/posts/28937.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Tan Jialin">
+      <meta itemprop="description" content="一切都是瞬间，一切都会过去">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="明月入怀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SHELL编程工具
+        </h1>
+
+        <div class="post-meta">
+
+			
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-02-11 10:27:38" itemprop="dateCreated datePublished" datetime="2019-02-11T10:27:38+08:00">2019-02-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SHELL/" itemprop="url" rel="index"><span itemprop="name">SHELL</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/posts/28937.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/posts/28937.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>了解shell中的通配符</li>
+<li>熟悉grep、cut、sort等小工具和shell中的通配符的使用</li>
+</ul>
+<a id="more"></a>
+<h1 id="一、文本处理工具"><a href="#一、文本处理工具" class="headerlink" title="一、文本处理工具"></a>一、文本处理工具</h1><h2 id="1-grep工具"><a href="#1-grep工具" class="headerlink" title="1. ==grep工具=="></a>1. ==grep工具==</h2><blockquote>
+<p>grep是<strong>==行==</strong>过滤工具；用于根据关键字进行行过滤</p>
+</blockquote>
+<h3 id="语法和选项"><a href="#语法和选项" class="headerlink" title="语法和选项"></a>语法和选项</h3><p><strong>语法：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># grep [选项] '关键字' 文件名</span></span><br></pre></td></tr></table></figure>
+<p><strong>常见选项：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS:</span><br><span class="line">    <span class="literal">-i</span>: 不区分大小写</span><br><span class="line">    <span class="literal">-v</span>: 查找不包含指定内容的行,反向选择</span><br><span class="line">    <span class="literal">-w</span>: 按单词搜索</span><br><span class="line">    <span class="literal">-o</span>: 打印匹配关键字</span><br><span class="line">    <span class="literal">-c</span>: 统计匹配到的行数</span><br><span class="line">    <span class="literal">-n</span>: 显示行号</span><br><span class="line">    <span class="literal">-r</span>: 逐层遍历目录查找</span><br><span class="line">    <span class="literal">-A</span>: 显示匹配行及后面多少行	</span><br><span class="line">    <span class="literal">-B</span>: 显示匹配行及前面多少行</span><br><span class="line">    <span class="literal">-C</span>: 显示匹配行前后多少行</span><br><span class="line">    <span class="literal">-l</span>：只列出匹配的文件名</span><br><span class="line">    <span class="literal">-L</span>：列出不匹配的文件名</span><br><span class="line">    <span class="literal">-e</span>: 使用正则匹配</span><br><span class="line">    <span class="literal">-E</span>:使用扩展正则匹配</span><br><span class="line">    ^key:以关键字开头</span><br><span class="line">    key<span class="variable">$</span>:以关键字结尾</span><br><span class="line">    ^<span class="variable">$</span>:匹配空行</span><br><span class="line">    -<span class="literal">-color</span>=auto ：可以将找到的关键词部分加上颜色的显示</span><br></pre></td></tr></table></figure>
+<p><strong>颜色显示（别名设置）：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">临时设置：</span><br><span class="line"><span class="comment"># alias grep='grep --color=auto'			//只针对当前终端和当前用户生效</span></span><br><span class="line"></span><br><span class="line">永久设置：</span><br><span class="line"><span class="number">1</span>）全局（针对所有用户生效）</span><br><span class="line">vim /etc/bashrc</span><br><span class="line">alias grep=<span class="string">'grep --color=auto'</span></span><br><span class="line">source /etc/bashrc</span><br><span class="line"></span><br><span class="line"><span class="number">2</span>）局部（针对具体的某个用户）</span><br><span class="line">vim ~/.bashrc</span><br><span class="line">alias grep=<span class="string">'grep --color=auto'</span></span><br><span class="line">source ~/.bashrc</span><br></pre></td></tr></table></figure>
+<p><strong>举例说明：</strong></p>
+<p>==说明：不要直接使用/etc/passwd文件，将其拷贝到/tmp下做实验！==</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># grep -i root passwd						忽略大小写匹配包含root的行</span></span><br><span class="line"><span class="comment"># grep -w ftp passwd 						精确匹配ftp单词</span></span><br><span class="line"><span class="comment"># grep -w hello passwd 						精确匹配hello单词;自己添加包含hello的行到文件</span></span><br><span class="line"><span class="comment"># grep -wo ftp passwd 						打印匹配到的关键字ftp</span></span><br><span class="line"><span class="comment"># grep -n root passwd 						打印匹配到root关键字的行好</span></span><br><span class="line"><span class="comment"># grep -ni root passwd 						忽略大小写匹配统计包含关键字root的行</span></span><br><span class="line"><span class="comment"># grep -nic root passwd						忽略大小写匹配统计包含关键字root的行数</span></span><br><span class="line"><span class="comment"># grep -i ^root passwd 						忽略大小写匹配以root开头的行</span></span><br><span class="line"><span class="comment"># grep bash$ passwd 							匹配以bash结尾的行</span></span><br><span class="line"><span class="comment"># grep -n ^$ passwd 							匹配空行并打印行号</span></span><br><span class="line"><span class="comment"># grep ^# /etc/vsftpd/vsftpd.conf		匹配以#号开头的行</span></span><br><span class="line"><span class="comment"># grep -v ^# /etc/vsftpd/vsftpd.conf	匹配不以#号开头的行</span></span><br><span class="line"><span class="comment"># grep -A 5 mail passwd 				 	匹配包含mail关键字及其后5行</span></span><br><span class="line"><span class="comment"># grep -B 5 mail passwd 				 	匹配包含mail关键字及其前5行</span></span><br><span class="line"><span class="comment"># grep -C 5 mail passwd 					匹配包含mail关键字及其前后5行</span></span><br></pre></td></tr></table></figure>
+<h2 id="2-cut工具"><a href="#2-cut工具" class="headerlink" title="2. ==cut工具=="></a>2. ==cut工具==</h2><blockquote>
+<p>cut是<strong>==列==</strong>截取工具，用于列的截取</p>
+</blockquote>
+<h3 id="语法和选项-1"><a href="#语法和选项-1" class="headerlink" title="语法和选项"></a>语法和选项</h3><p><strong>语法：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cut 选项  文件名</span></span><br></pre></td></tr></table></figure>
+<p><strong>常见选项：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">-c</span>:	以字符为单位进行分割,截取</span><br><span class="line"><span class="literal">-d</span>:	自定义分隔符，默认为制表符\t</span><br><span class="line"><span class="operator">-f</span>:	与<span class="literal">-d</span>一起使用，指定截取哪个区域</span><br></pre></td></tr></table></figure>
+<p><strong>举例说明:</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cut -d: -f1 1.txt 			以:冒号分割，截取第1列内容</span></span><br><span class="line"><span class="comment"># cut -d: -f1,6,7 1.txt 	以:冒号分割，截取第1,6,7列内容</span></span><br><span class="line"><span class="comment"># cut -c4 1.txt 				截取文件中每行第4个字符</span></span><br><span class="line"><span class="comment"># cut -c1-4 1.txt 			截取文件中每行的1-4个字符</span></span><br><span class="line"><span class="comment"># cut -c4-10 1.txt 			截取文件中每行的4-10个字符</span></span><br><span class="line"><span class="comment"># cut -c5- 1.txt 				从第5个字符开始截取后面所有字符</span></span><br></pre></td></tr></table></figure>
+<p><strong>课堂练习：</strong><br>用小工具列出你当系统的运行级别。5/3</p>
+<ol>
+<li>如何查看系统运行级别<ul>
+<li>命令<code>runlevel</code></li>
+<li>文件<code>/etc/inittab</code></li>
+</ul>
+</li>
+<li>如何过滤运行级别</li>
+</ol>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">runlevel |cut <span class="literal">-c3</span></span><br><span class="line">runlevel | cut <span class="literal">-d</span> <span class="string">' '</span> <span class="literal">-f2</span></span><br><span class="line">grep <span class="literal">-v</span> <span class="string">'^#'</span> /etc/inittab | cut <span class="literal">-d</span>: <span class="literal">-f2</span></span><br><span class="line">grep <span class="string">'^id'</span> /etc/inittab |cut <span class="literal">-d</span>: <span class="literal">-f2</span></span><br><span class="line">grep <span class="string">"initdefault:<span class="variable">$</span>"</span> /etc/inittab | cut <span class="literal">-c4</span></span><br><span class="line">grep <span class="literal">-v</span> ^<span class="comment"># /etc/inittab |cut -c4</span></span><br><span class="line">grep <span class="string">'id:'</span> /etc/inittab |cut <span class="literal">-d</span>: <span class="literal">-f2</span></span><br><span class="line">cut <span class="literal">-d</span><span class="string">':'</span> <span class="literal">-f2</span> /etc/inittab |grep <span class="literal">-v</span> ^<span class="comment">#</span></span><br><span class="line">cut <span class="literal">-c4</span> /etc/inittab |tail <span class="literal">-1</span></span><br><span class="line">cut <span class="literal">-d</span>: <span class="literal">-f2</span> /etc/inittab |tail <span class="literal">-1</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-sort工具"><a href="#3-sort工具" class="headerlink" title="3. sort工具"></a>3. sort工具</h2><blockquote>
+<p>sort工具用于排序;它将文件的每一行作为一个单位，从首字符向后，依次按ASCII码值进行比较，最后将他们按升序输出。</p>
+</blockquote>
+<h4 id="语法和选项-2"><a href="#语法和选项-2" class="headerlink" title="语法和选项"></a>语法和选项</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">-u</span> ：去除重复行</span><br><span class="line"><span class="literal">-r</span> ：降序排列，默认是升序</span><br><span class="line"><span class="literal">-o</span> : 将排序结果输出到文件中,类似重定向符号&gt;</span><br><span class="line"><span class="literal">-n</span> ：以数字排序，默认是按字符排序</span><br><span class="line"><span class="literal">-t</span> ：分隔符</span><br><span class="line"><span class="literal">-k</span> ：第N列</span><br><span class="line"><span class="literal">-b</span> ：忽略前导空格。</span><br><span class="line"><span class="literal">-R</span> ：随机排序，每次运行的结果均不同</span><br></pre></td></tr></table></figure>
+<p><strong>举例说明</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># sort -n -t: -k3 1.txt 			按照用户的uid进行升序排列</span></span><br><span class="line"><span class="comment"># sort -nr -t: -k3 1.txt 			按照用户的uid进行降序排列</span></span><br><span class="line"><span class="comment"># sort -n 2.txt 						按照数字排序</span></span><br><span class="line"><span class="comment"># sort -nu 2.txt 						按照数字排序并且去重</span></span><br><span class="line"><span class="comment"># sort -nr 2.txt </span></span><br><span class="line"><span class="comment"># sort -nru 2.txt </span></span><br><span class="line"><span class="comment"># sort -nru 2.txt </span></span><br><span class="line"><span class="comment"># sort -n 2.txt -o 3.txt 			按照数字排序并将结果重定向到文件</span></span><br><span class="line"><span class="comment"># sort -R 2.txt </span></span><br><span class="line"><span class="comment"># sort -u 2.txt</span></span><br></pre></td></tr></table></figure>
+<h2 id="4-uniq工具"><a href="#4-uniq工具" class="headerlink" title="4.uniq工具"></a>4.uniq工具</h2><blockquote>
+<p>uniq用于去除<strong>==连续==</strong>的<strong>==重复==</strong>行</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">常见选项：</span><br><span class="line"><span class="literal">-i</span>: 忽略大小写</span><br><span class="line"><span class="literal">-c</span>: 统计重复行次数</span><br><span class="line"><span class="literal">-d</span>:只显示重复行</span><br><span class="line"></span><br><span class="line">举例说明：</span><br><span class="line"><span class="comment"># uniq 2.txt </span></span><br><span class="line"><span class="comment"># uniq -d 2.txt </span></span><br><span class="line"><span class="comment"># uniq -dc 2.txt</span></span><br></pre></td></tr></table></figure>
+<h2 id="5-tee工具"><a href="#5-tee工具" class="headerlink" title="5.tee工具"></a>5.tee工具</h2><blockquote>
+<p>tee工具是从标准输入读取并写入到标准输出和文件，即：双向覆盖重定向（屏幕输出|文本输入）</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">选项：</span><br><span class="line"><span class="literal">-a</span> 双向追加重定向</span><br><span class="line"></span><br><span class="line"><span class="comment"># echo hello world</span></span><br><span class="line"><span class="comment"># echo hello world|tee file1</span></span><br><span class="line"><span class="comment"># cat file1 </span></span><br><span class="line"><span class="comment"># echo 999|tee -a file1</span></span><br><span class="line"><span class="comment"># cat file1</span></span><br></pre></td></tr></table></figure>
+<h2 id="6-diff工具"><a href="#6-diff工具" class="headerlink" title="6.diff工具"></a>6.diff工具</h2><blockquote>
+<p>diff工具用于逐行比较文件的不同</p>
+</blockquote>
+<p>注意：diff描述两个文件不同的方式是告诉我们==怎样改变第一个==文件之后==与第二个文件匹配==。</p>
+<h3 id="语法和选项-3"><a href="#语法和选项-3" class="headerlink" title="语法和选项"></a>语法和选项</h3><p><strong>语法：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diff [选项] 文件<span class="number">1</span> 文件<span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p><strong>常用选项：</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>含义</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-b</td>
+<td>不检查空格</td>
+<td></td>
+</tr>
+<tr>
+<td>-B</td>
+<td>不检查空白行</td>
+<td></td>
+</tr>
+<tr>
+<td>-i</td>
+<td>不检查大小写</td>
+<td></td>
+</tr>
+<tr>
+<td>-w</td>
+<td>忽略所有的空格</td>
+<td></td>
+</tr>
+<tr>
+<td>—normal</td>
+<td>正常格式显示(默认)</td>
+<td></td>
+</tr>
+<tr>
+<td>-c</td>
+<td>上下文格式显示</td>
+<td></td>
+</tr>
+<tr>
+<td>-u</td>
+<td>合并格式显示</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>举例说明：</strong></p>
+<ul>
+<li>比较两个==普通文件==异同，文件准备：</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span> ~]<span class="comment"># cat file1</span></span><br><span class="line">aaaa</span><br><span class="line"><span class="number">111</span></span><br><span class="line">hello world</span><br><span class="line"><span class="number">222</span></span><br><span class="line"><span class="number">333</span></span><br><span class="line">bbb</span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span> ~]<span class="comment">#</span></span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span> ~]<span class="comment"># cat file2</span></span><br><span class="line">aaa</span><br><span class="line">hello</span><br><span class="line"><span class="number">111</span></span><br><span class="line"><span class="number">222</span></span><br><span class="line">bbb</span><br><span class="line"><span class="number">333</span></span><br><span class="line">world</span><br></pre></td></tr></table></figure>
+<p>1）正常显示</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">diff目的：file1如何改变才能和file2匹配</span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span> ~]<span class="comment"># diff file1 file2</span></span><br><span class="line"><span class="number">1</span>c1,<span class="number">2</span>					第一个文件的第<span class="number">1</span>行需要改变(c=change)才能和第二个文件的第<span class="number">1</span>到<span class="number">2</span>行匹配			</span><br><span class="line">&lt; aaaa				小于号<span class="string">"&lt;"</span>表示左边文件(file1)文件内容</span><br><span class="line">---					---表示分隔符</span><br><span class="line">&gt; aaa					大于号<span class="string">"&gt;"</span>表示右边文件(file2)文件内容</span><br><span class="line">&gt; hello</span><br><span class="line"><span class="number">3</span>d3					第一个文件的第<span class="number">3</span>行删除(d=delete)后才能和第二个文件的第<span class="number">3</span>行匹配</span><br><span class="line">&lt; hello world</span><br><span class="line"><span class="number">5</span>d4					第一个文件的第<span class="number">5</span>行删除后才能和第二个文件的第<span class="number">4</span>行匹配</span><br><span class="line">&lt; <span class="number">333</span></span><br><span class="line"><span class="number">6</span>a6,<span class="number">7</span>					第一个文件的第<span class="number">6</span>行增加(a=add)内容后才能和第二个文件的第<span class="number">6</span>到<span class="number">7</span>行匹配</span><br><span class="line">&gt; <span class="number">333</span>					需要增加的内容在第二个文件里是<span class="number">333</span>和world</span><br><span class="line">&gt; world</span><br></pre></td></tr></table></figure>
+<p>2）上下文格式显示</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span> ~]<span class="comment"># diff -c file1 file2</span></span><br><span class="line">前两行主要列出需要比较的文件名和文件的时间戳；文件名前面的符号***表示file1，---表示file2</span><br><span class="line">*** file1       <span class="number">2019</span><span class="literal">-04</span><span class="literal">-16</span> <span class="number">16</span>:<span class="number">26</span>:<span class="number">05.748650262</span> +<span class="number">0800</span></span><br><span class="line">--- file2       <span class="number">2019</span><span class="literal">-04</span><span class="literal">-16</span> <span class="number">16</span>:<span class="number">26</span>:<span class="number">30.470646030</span> +<span class="number">0800</span></span><br><span class="line">***************	我是分隔符</span><br><span class="line">*** <span class="number">1</span>,<span class="number">6</span> ****		以***开头表示file1文件，<span class="number">1</span>,<span class="number">6</span>表示<span class="number">1</span>到<span class="number">6</span>行</span><br><span class="line">! aaaa				!表示该行需要修改才与第二个文件匹配</span><br><span class="line">  <span class="number">111</span></span><br><span class="line">- hello world		-表示需要删除该行才与第二个文件匹配</span><br><span class="line">  <span class="number">222</span></span><br><span class="line">- <span class="number">333</span>					-表示需要删除该行才与第二个文件匹配</span><br><span class="line">  bbb</span><br><span class="line">--- <span class="number">1</span>,<span class="number">7</span> ----		以---开头表示file2文件，<span class="number">1</span>,<span class="number">7</span>表示<span class="number">1</span>到<span class="number">7</span>行</span><br><span class="line">! aaa					表示第一个文件需要修改才与第二个文件匹配</span><br><span class="line">! hello				表示第一个文件需要修改才与第二个文件匹配</span><br><span class="line">  <span class="number">111</span></span><br><span class="line">  <span class="number">222</span></span><br><span class="line">  bbb</span><br><span class="line">+ <span class="number">333</span>					表示第一个文件需要加上该行才与第二个文件匹配</span><br><span class="line">+ world				表示第一个文件需要加上该行才与第二个文件匹配</span><br></pre></td></tr></table></figure>
+<p>3）合并格式显示</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span> ~]<span class="comment"># diff -u file1 file2</span></span><br><span class="line">前两行主要列出需要比较的文件名和文件的时间戳；文件名前面的符号---表示file1，+++表示file2</span><br><span class="line">--- file1       <span class="number">2019</span><span class="literal">-04</span><span class="literal">-16</span> <span class="number">16</span>:<span class="number">26</span>:<span class="number">05.748650262</span> +<span class="number">0800</span></span><br><span class="line">+++ file2       <span class="number">2019</span><span class="literal">-04</span><span class="literal">-16</span> <span class="number">16</span>:<span class="number">26</span>:<span class="number">30.470646030</span> +<span class="number">0800</span></span><br><span class="line"><span class="selector-tag">@</span><span class="selector-tag">@</span> <span class="literal">-1</span>,<span class="number">6</span> +<span class="number">1</span>,<span class="number">7</span> <span class="selector-tag">@</span><span class="selector-tag">@</span></span><br><span class="line"><span class="literal">-aaaa</span></span><br><span class="line">+aaa</span><br><span class="line">+hello</span><br><span class="line"> <span class="number">111</span></span><br><span class="line"><span class="literal">-hello</span> world</span><br><span class="line"> <span class="number">222</span></span><br><span class="line"><span class="literal">-333</span></span><br><span class="line"> bbb</span><br><span class="line">+<span class="number">333</span></span><br><span class="line">+world</span><br></pre></td></tr></table></figure>
+<ul>
+<li>比较两个==目录不同==</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">默认情况下也会比较两个目录里相同文件的内容</span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">tmp</span>]<span class="comment"># diff dir1 dir2</span></span><br><span class="line">diff dir1/file1 dir2/file1</span><br><span class="line"><span class="number">0</span>a1</span><br><span class="line">&gt; hello</span><br><span class="line">Only <span class="keyword">in</span> dir1: file3</span><br><span class="line">Only <span class="keyword">in</span> dir2: test1</span><br><span class="line">如果只需要比较两个目录里文件的不同，不需要进一步比较文件内容，需要加<span class="literal">-q</span>选项</span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">tmp</span>]<span class="comment"># diff -q dir1 dir2</span></span><br><span class="line">Files dir1/file1 and dir2/file1 differ</span><br><span class="line">Only <span class="keyword">in</span> dir1: file3</span><br><span class="line">Only <span class="keyword">in</span> dir2: test1</span><br></pre></td></tr></table></figure>
+<p><strong>其他小技巧：</strong></p>
+<p>有时候我们需要以一个文件为标准，去修改其他文件，并且修改的地方较多时，我们可以通过打补丁的方式完成。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>）先找出文件不同，然后输出到一个文件</span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span> ~]<span class="comment"># diff -uN file1 file2 &gt; file.patch</span></span><br><span class="line"><span class="literal">-u</span>:上下文模式</span><br><span class="line"><span class="literal">-N</span>:将不存在的文件当作空文件</span><br><span class="line"><span class="number">2</span>）将不同内容打补丁到文件</span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span> ~]<span class="comment"># patch file1 file.patch</span></span><br><span class="line">patching file file1</span><br><span class="line"><span class="number">3</span>）测试验证</span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span> ~]<span class="comment"># diff file1 file2</span></span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span> ~]<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+<h2 id="7-paste工具"><a href="#7-paste工具" class="headerlink" title="7. paste工具"></a>7. paste工具</h2><blockquote>
+<p>paste工具用于合并文件行</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">常用选项：</span><br><span class="line"><span class="literal">-d</span>：自定义间隔符，默认是tab</span><br><span class="line"><span class="literal">-s</span>：串行处理，非并行</span><br></pre></td></tr></table></figure>
+<h2 id="8-tr工具"><a href="#8-tr工具" class="headerlink" title="8. tr工具"></a>8. tr工具</h2><blockquote>
+<p> tr用于字符转换，替换和删除；主要用于==删除文件中控制字符==或进行==字符转换==</p>
+</blockquote>
+<h3 id="语法和选项-4"><a href="#语法和选项-4" class="headerlink" title="语法和选项"></a>语法和选项</h3><p><strong>语法：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">用法<span class="number">1</span>：命令的执行结果交给tr处理，其中string1用于查询，string2用于转换处理</span><br><span class="line"></span><br><span class="line"> commands|tr  <span class="string">'string1'</span>  <span class="string">'string2'</span></span><br><span class="line"></span><br><span class="line">用法<span class="number">2</span>：tr处理的内容来自文件，记住要使用<span class="string">"&lt;"</span>标准输入</span><br><span class="line"></span><br><span class="line"> tr  <span class="string">'string1'</span>  <span class="string">'string2'</span> &lt; filename</span><br><span class="line"></span><br><span class="line">用法<span class="number">3</span>：匹配string1进行相应操作，如删除操作</span><br><span class="line"></span><br><span class="line"> tr [<span class="type">options</span>] <span class="string">'string1'</span> &lt; filename</span><br></pre></td></tr></table></figure>
+<p><strong>常用选项：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">-d</span> 删除字符串<span class="number">1</span>中所有输入字符。</span><br><span class="line"><span class="literal">-s</span> 删除所有重复出现字符序列，只保留第一个；即将重复出现字符串压缩为一个字符串</span><br></pre></td></tr></table></figure>
+<p><strong>常匹配字符串：</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>字符串</th>
+<th>含义</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>==a-z==或[:lower:]</td>
+<td>匹配所有小写字母</td>
+<td>所有大小写和数字[a-zA-Z0-9]</td>
+</tr>
+<tr>
+<td>==A-Z==或[:upper:]</td>
+<td>匹配所有大写字母</td>
+<td></td>
+</tr>
+<tr>
+<td>==0-9==或[:digit:]</td>
+<td>匹配所有数字</td>
+<td></td>
+</tr>
+<tr>
+<td>[:alnum:]</td>
+<td>匹配所有字母和数字</td>
+<td></td>
+</tr>
+<tr>
+<td>[:alpha:]</td>
+<td>匹配所有字母</td>
+<td></td>
+</tr>
+<tr>
+<td>[:blank:]</td>
+<td>所有水平空白</td>
+<td></td>
+</tr>
+<tr>
+<td>[:punct:]</td>
+<td>匹配所有标点符号</td>
+<td></td>
+</tr>
+<tr>
+<td>[:space:]</td>
+<td>所有水平或垂直的空格</td>
+<td></td>
+</tr>
+<tr>
+<td>[:cntrl:]</td>
+<td>所有控制字符</td>
+<td>\f Ctrl-L        走行换页<br>\n Ctrl-J      换行</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>\r Ctrl-M        回车<br>\t Ctrl-I      tab键 |</p>
+<p><strong>举例说明：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">shell01</span>]<span class="comment"># cat 3.txt 	自己创建该文件用于测试</span></span><br><span class="line">ROOT:x:<span class="number">0</span>:<span class="number">0</span>:root:/root:/bin/bash</span><br><span class="line">bin:x:<span class="number">1</span>:<span class="number">1</span>:bin:/bin:/sbin/nologin</span><br><span class="line">daemon:x:<span class="number">2</span>:<span class="number">2</span>:daemon:/sbin:/sbin/nologin</span><br><span class="line">adm:x:<span class="number">3</span>:<span class="number">4</span>:adm:/var/adm:/sbin/nologin</span><br><span class="line">lp:x:<span class="number">4</span>:<span class="number">7</span>:lp:/var/spool/lpd:/sbin/nologin</span><br><span class="line">sync:x:<span class="number">5</span>:<span class="number">0</span>:sync:/sbin:/bin/sync</span><br><span class="line">shutdown:x:<span class="number">6</span>:<span class="number">0</span>:shutdown:/sbin:/sbin/shutdown</span><br><span class="line">halt:x:<span class="number">7</span>:<span class="number">0</span>:halt:/sbin:/sbin/halt</span><br><span class="line">mail:x:<span class="number">8</span>:<span class="number">12</span>:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">uucp:x:<span class="number">10</span>:<span class="number">14</span>:uucp:/var/spool/uucp:/sbin/nologin</span><br><span class="line">boss02:x:<span class="number">516</span>:<span class="number">511</span>::/home/boss02:/bin/bash</span><br><span class="line">vip:x:<span class="number">517</span>:<span class="number">517</span>::/home/vip:/bin/bash</span><br><span class="line">stu1:x:<span class="number">518</span>:<span class="number">518</span>::/home/stu1:/bin/bash</span><br><span class="line">mailnull:x:<span class="number">47</span>:<span class="number">47</span>::/var/spool/mqueue:/sbin/nologin</span><br><span class="line">smmsp:x:<span class="number">51</span>:<span class="number">51</span>::/var/spool/mqueue:/sbin/nologin</span><br><span class="line">aaaaaaaaaaaaaaaaaaaa</span><br><span class="line">bbbbbb111111122222222222233333333cccccccc</span><br><span class="line">hello world <span class="number">888</span></span><br><span class="line"><span class="number">666</span></span><br><span class="line"><span class="number">777</span></span><br><span class="line"><span class="number">999</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># tr -d '[:/]' &lt; 3.txt 				删除文件中的:和/</span></span><br><span class="line"><span class="comment"># cat 3.txt |tr -d '[:/]'			删除文件中的:和/</span></span><br><span class="line"><span class="comment"># tr '[0-9]' '@' &lt; 3.txt 			将文件中的数字替换为@符号</span></span><br><span class="line"><span class="comment"># tr '[a-z]' '[A-Z]' &lt; 3.txt 		将文件中的小写字母替换成大写字母</span></span><br><span class="line"><span class="comment"># tr -s '[a-z]' &lt; 3.txt 			匹配小写字母并将重复的压缩为一个</span></span><br><span class="line"><span class="comment"># tr -s '[a-z0-9]' &lt; 3.txt 		匹配小写字母和数字并将重复的压缩为一个</span></span><br><span class="line"><span class="comment"># tr -d '[:digit:]' &lt; 3.txt 		删除文件中的数字</span></span><br><span class="line"><span class="comment"># tr -d '[:blank:]' &lt; 3.txt 		删除水平空白</span></span><br><span class="line"><span class="comment"># tr -d '[:space:]' &lt; 3.txt 		删除所有水平和垂直空白</span></span><br></pre></td></tr></table></figure>
+<h4 id="小试牛刀"><a href="#小试牛刀" class="headerlink" title="小试牛刀"></a>小试牛刀</h4><ol>
+<li>使用小工具分别截取当前主机IP；截取NETMASK；截取广播地址；截取MAC地址</li>
+</ol>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ifconfig eth0|grep 'Bcast'|tr -d '[a-zA-Z ]'|cut -d: -f2,3,4</span></span><br><span class="line"><span class="number">10.1</span>.<span class="number">1.1</span>:<span class="number">10.1</span>.<span class="number">1.255</span>:<span class="number">255.255</span>.<span class="number">255.0</span></span><br><span class="line"><span class="comment"># ifconfig eth0|grep 'Bcast'|tr -d '[a-zA-Z ]'|cut -d: -f2,3,4|tr ':' '\n'</span></span><br><span class="line"><span class="number">10.1</span>.<span class="number">1.1</span></span><br><span class="line"><span class="number">10.1</span>.<span class="number">1.255</span></span><br><span class="line"><span class="number">255.255</span>.<span class="number">255.0</span></span><br><span class="line"><span class="comment"># ifconfig eth0|grep 'HWaddr'|cut -d: -f2-|cut -d' ' -f4</span></span><br><span class="line"><span class="number">00</span>:<span class="number">0</span>C:<span class="number">29</span>:<span class="number">25</span>:AE:<span class="number">54</span></span><br><span class="line"><span class="comment"># ifconfig eth0|grep 'HW'|tr -s ' '|cut -d' ' -f5</span></span><br><span class="line"><span class="number">00</span>:<span class="number">0</span>C:<span class="number">29</span>:B4:<span class="number">9</span>E:<span class="number">4</span>E</span><br><span class="line"></span><br><span class="line"><span class="comment"># ifconfig eth1|grep Bcast|cut -d: -f2|cut -d' ' -f1</span></span><br><span class="line"><span class="comment"># ifconfig eth1|grep Bcast|cut -d: -f2|tr -d '[ a-zA-Z]'</span></span><br><span class="line"><span class="comment"># ifconfig eth1|grep Bcast|tr -d '[:a-zA-Z]'|tr ' ' '@'|tr -s '@'|tr '@' '\n'|grep -v ^$</span></span><br><span class="line"><span class="comment"># ifconfig eth0|grep 'Bcast'|tr -d [:alpha:]|tr '[ :]' '\n'|grep -v ^$</span></span><br><span class="line"><span class="comment"># ifconfig eth1|grep HWaddr|cut -d ' ' -f11</span></span><br><span class="line"><span class="comment"># ifconfig eth0|grep HWaddr|tr -s ' '|cut -d' ' -f5</span></span><br><span class="line"><span class="comment"># ifconfig eth1|grep HWaddr|tr -s ' '|cut -d' ' -f5</span></span><br><span class="line"><span class="comment"># ifconfig eth0|grep 'Bcast'|tr -d 'a-zA-Z:'|tr ' ' '\n'|grep -v '^$'</span></span><br></pre></td></tr></table></figure>
+<ol>
+<li>将系统中所有普通用户的用户名、密码和默认shell保存到一个文件中，要求用户名密码和默认shell之间用tab键分割</li>
+</ol>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># grep 'bash$' passwd |grep -v 'root'|cut -d: -f1,2,7|tr ':' '\t' |tee abc.txt</span></span><br></pre></td></tr></table></figure>
+<h1 id="二、bash的特性"><a href="#二、bash的特性" class="headerlink" title="二、bash的特性"></a>二、bash的特性</h1><h2 id="1、命令和文件自动补全"><a href="#1、命令和文件自动补全" class="headerlink" title="1、命令和文件自动补全"></a>1、命令和文件自动补全</h2><p>Tab只能补全==命令和文件== （RHEL6/Centos6）</p>
+<h2 id="2、常见的快捷键"><a href="#2、常见的快捷键" class="headerlink" title="2、常见的快捷键"></a>2、常见的快捷键</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">^c   			终止前台运行的程序</span><br><span class="line">^z	  			将前台运行的程序挂起到后台</span><br><span class="line">^d   			退出 等价<span class="keyword">exit</span></span><br><span class="line">^l   			清屏 </span><br><span class="line">^a |home  	光标移到命令行的最前端</span><br><span class="line">^e |<span class="keyword">end</span>  	光标移到命令行的后端</span><br><span class="line">^u   			删除光标前所有字符</span><br><span class="line">^k   			删除光标后所有字符</span><br><span class="line">^r	 			搜索历史命令</span><br></pre></td></tr></table></figure>
+<h2 id="3-、-常用的通配符（重点）"><a href="#3-、-常用的通配符（重点）" class="headerlink" title="3 、==常用的通配符（重点）=="></a>3 、==常用的通配符（重点）==</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">*:	匹配<span class="number">0</span>或多个任意字符</span><br><span class="line">?:	匹配任意单个字符</span><br><span class="line">[<span class="type">list</span>]:	匹配[<span class="type">list</span>]中的任意单个字符,或者一组单个字符   [<span class="type">a</span>-<span class="type">z</span>]</span><br><span class="line">[!<span class="type">list</span>]: 匹配除list中的任意单个字符</span><br><span class="line">&#123;string1,string2,...&#125;：匹配string1,string2或更多字符串</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># rm -f file*</span></span><br><span class="line"><span class="comment"># cp *.conf  /dir1</span></span><br><span class="line"><span class="comment"># touch file&#123;1..5&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="4、-bash中的引号（重点）"><a href="#4、-bash中的引号（重点）" class="headerlink" title="4、==bash中的引号（重点）=="></a>4、==bash中的引号（重点）==</h2><ul>
+<li>双引号””   :会把引号的内容当成整体来看待，允许通过$符号引用其他变量值</li>
+<li>单引号’’     :会把引号的内容当成整体来看待，禁止引用其他变量值，shell中特殊符号都被视为普通字符</li>
+<li>反撇号``  :反撇号和$()一样，引号或括号里的命令会优先执行，如果存在嵌套，反撇号不能用</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">dir1</span>]<span class="comment"># echo "$(hostname)"</span></span><br><span class="line">server</span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">dir1</span>]<span class="comment"># echo '$(hostname)'</span></span><br><span class="line"><span class="variable">$</span>(hostname)</span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">dir1</span>]<span class="comment"># echo "hello world"</span></span><br><span class="line">hello world</span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">dir1</span>]<span class="comment"># echo 'hello world'</span></span><br><span class="line">hello world</span><br><span class="line"></span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">dir1</span>]<span class="comment"># echo $(date +%F)</span></span><br><span class="line"><span class="number">2018</span><span class="literal">-11</span><span class="literal">-22</span></span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">dir1</span>]<span class="comment"># echo `echo $(date +%F)`</span></span><br><span class="line"><span class="number">2018</span><span class="literal">-11</span><span class="literal">-22</span></span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">dir1</span>]<span class="comment"># echo `date +%F`</span></span><br><span class="line"><span class="number">2018</span><span class="literal">-11</span><span class="literal">-22</span></span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">dir1</span>]<span class="comment"># echo `echo `date +%F``</span></span><br><span class="line">date +%F</span><br><span class="line">[<span class="type">root</span>@<span class="type">MissHou</span>  <span class="type">dir1</span>]<span class="comment"># echo $(echo `date +%F`)</span></span><br><span class="line"><span class="number">2018</span><span class="literal">-11</span><span class="literal">-22</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+
+  <div>
+	
+<div style="text-align:center;color: #ccc;font-size:14px;">
+	------ 本文结束<i class="fa fa-paw"></i>感谢您的阅读 ------</div>
+
+  </div>
+
+
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/29946.html" rel="prev" title="维纳滤波器——GSC算法及语音增强">
+      <i class="fa fa-chevron-left"></i> 维纳滤波器——GSC算法及语音增强
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/62636.html" rel="next" title="SHELL编程之变量定义">
+      SHELL编程之变量定义 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一、文本处理工具"><span class="nav-number">1.</span> <span class="nav-text">一、文本处理工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-grep工具"><span class="nav-number">1.1.</span> <span class="nav-text">1. &#x3D;&#x3D;grep工具&#x3D;&#x3D;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#语法和选项"><span class="nav-number">1.1.1.</span> <span class="nav-text">语法和选项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-cut工具"><span class="nav-number">1.2.</span> <span class="nav-text">2. &#x3D;&#x3D;cut工具&#x3D;&#x3D;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#语法和选项-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">语法和选项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-sort工具"><span class="nav-number">1.3.</span> <span class="nav-text">3. sort工具</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#语法和选项-2"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">语法和选项</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-uniq工具"><span class="nav-number">1.4.</span> <span class="nav-text">4.uniq工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-tee工具"><span class="nav-number">1.5.</span> <span class="nav-text">5.tee工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-diff工具"><span class="nav-number">1.6.</span> <span class="nav-text">6.diff工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#语法和选项-3"><span class="nav-number">1.6.1.</span> <span class="nav-text">语法和选项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-paste工具"><span class="nav-number">1.7.</span> <span class="nav-text">7. paste工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-tr工具"><span class="nav-number">1.8.</span> <span class="nav-text">8. tr工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#语法和选项-4"><span class="nav-number">1.8.1.</span> <span class="nav-text">语法和选项</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#小试牛刀"><span class="nav-number">1.8.1.1.</span> <span class="nav-text">小试牛刀</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、bash的特性"><span class="nav-number">2.</span> <span class="nav-text">二、bash的特性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、命令和文件自动补全"><span class="nav-number">2.1.</span> <span class="nav-text">1、命令和文件自动补全</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、常见的快捷键"><span class="nav-number">2.2.</span> <span class="nav-text">2、常见的快捷键</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-、-常用的通配符（重点）"><span class="nav-number">2.3.</span> <span class="nav-text">3 、&#x3D;&#x3D;常用的通配符（重点）&#x3D;&#x3D;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4、-bash中的引号（重点）"><span class="nav-number">2.4.</span> <span class="nav-text">4、&#x3D;&#x3D;bash中的引号（重点）&#x3D;&#x3D;</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Tan Jialin"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Tan Jialin</p>
+  <div class="site-description" itemprop="description">一切都是瞬间，一切都会过去</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tanjialin" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tanjialin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tanjialin@msn.com" title="E-Mail → mailto:tanjialin@msn.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://xiechao.now.sh/" title="https:&#x2F;&#x2F;xiechao.now.sh&#x2F;" rel="noopener" target="_blank">Xiechao</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.ekuibu.com/" title="https:&#x2F;&#x2F;www.ekuibu.com&#x2F;" rel="noopener" target="_blank">jinhui</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.ccyh.xyz/" title="https:&#x2F;&#x2F;www.ccyh.xyz&#x2F;" rel="noopener" target="_blank">Liam</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tan Jialin</span>
+</div>
+
+<!--页面点击小红心-->
+<script type="text/javascript" src="/love.js"></script>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'iy1RhKLFfKMHliqSI1cbvoKG-gzGzoHsz',
+      appKey     : 'MgmMstLkUs1uzCA88oTGeu7X',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>

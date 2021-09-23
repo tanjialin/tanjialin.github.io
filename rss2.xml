@@ -64,6 +64,23 @@
     </item>
     
     <item>
+      <title>听觉系统</title>
+      <link>https://www.tanjialin.cn/posts/23036.html</link>
+      <guid>https://www.tanjialin.cn/posts/23036.html</guid>
+      <pubDate>Sun, 01 Mar 2020 17:07:24 GMT</pubDate>
+      <description>
+      
+        &lt;p&gt;人类听觉系统由听觉外周和听觉中枢两部分构成。听觉外周是一个声音传感器，它主要负责对声信号进行采集、处理并转换为神经刺激传递至听觉中枢。 &lt;/p&gt;
+      
+      </description>
+      
+      
+      <content:encoded><![CDATA[<p>人类听觉系统由听觉外周和听觉中枢两部分构成。听觉外周是一个声音传感器，它主要负责对声信号进行采集、处理并转换为神经刺激传递至听觉中枢。 </p><a id="more"></a>]]></content:encoded>
+      
+      <comments>https://www.tanjialin.cn/posts/23036.html#disqus_thread</comments>
+    </item>
+    
+    <item>
       <title>递归最小二乘</title>
       <link>https://www.tanjialin.cn/posts/44588.html</link>
       <guid>https://www.tanjialin.cn/posts/44588.html</guid>
@@ -142,23 +159,6 @@
       <content:encoded><![CDATA[<p>梯度下降算法的解释：梯度下降算法最速下降法又称为梯度法，它是解析法中最古老的一种，其他解析方法或是它的变形，或是受它的启发而得到的，因此它是最优化方法的基础。作为一种基本的算法，他在最优化方法中占有重要地位。</p><a id="more"></a>]]></content:encoded>
       
       <comments>https://www.tanjialin.cn/posts/12524.html#disqus_thread</comments>
-    </item>
-    
-    <item>
-      <title>MATLAB按数字顺序读取文件</title>
-      <link>https://www.tanjialin.cn/posts/12218.html</link>
-      <guid>https://www.tanjialin.cn/posts/12218.html</guid>
-      <pubDate>Mon, 02 Sep 2019 12:27:19 GMT</pubDate>
-      <description>
-      
-        &lt;p&gt;最近手上一个项目需要生成一个超大文件，但是内存不够需要在超算分散运行，生成了大量的散碎文件最终需要拼凑，以下代码可以将文件按自然数顺序排序，并且将矩阵在第三维度进行拼凑&lt;/p&gt;
-      
-      </description>
-      
-      
-      <content:encoded><![CDATA[<p>最近手上一个项目需要生成一个超大文件，但是内存不够需要在超算分散运行，生成了大量的散碎文件最终需要拼凑，以下代码可以将文件按自然数顺序排序，并且将矩阵在第三维度进行拼凑</p><a id="more"></a><h2 id="MATLAB按数字顺序读取文件"><a href="#MATLAB按数字顺序读取文件" class="headerlink" title="MATLAB按数字顺序读取文件"></a>MATLAB按数字顺序读取文件</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">clc</span><br><span class="line">clear all</span><br><span class="line"></span><br><span class="line">dbstop if error</span><br><span class="line"></span><br><span class="line">trainPath&#x3D;&#39;E:\project\16面阵\file7\&#39;;  </span><br><span class="line">train  &#x3D; dir([trainPath &#39;*.mat&#39;]);</span><br><span class="line">train_num &#x3D; length(train);</span><br><span class="line">data_all&#x3D;[];</span><br><span class="line"></span><br><span class="line">sort_nat_name&#x3D;sort_mat(&#123;train.name&#125;);   </span><br><span class="line"> </span><br><span class="line">for i&#x3D;1:train_num</span><br><span class="line">  data &#x3D; load(sort_nat_name&#123;i&#125;); </span><br><span class="line">  data_matx &#x3D; cell2mat(struct2cell(data));</span><br><span class="line">  if i &#x3D;&#x3D; 1</span><br><span class="line">      data_all(:,:,size(data_all,3):size(data_matx,3)) &#x3D; data_matx;   </span><br><span class="line">  else</span><br><span class="line">      data_all(:,:,size(data_all,3) + 1:size(data_all,3)+size(data_matx,3)) &#x3D; data_matx;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">function [cs,index] &#x3D; sort_mat(c,mode)</span><br><span class="line"></span><br><span class="line">if nargin &lt; 2</span><br><span class="line">    mode &#x3D; &#39;ascend&#39;;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">modes &#x3D; strcmpi(mode,&#123;&#39;ascend&#39;,&#39;descend&#39;&#125;);</span><br><span class="line">is_descend &#x3D; modes(2);</span><br><span class="line">if ~any(modes)</span><br><span class="line">    error(&#39;sort_nat:sortDirection&#39;,...</span><br><span class="line">        &#39;sorting direction must be &#39;&#39;ascend&#39;&#39; or &#39;&#39;descend&#39;&#39;.&#39;)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">c2 &#x3D; regexprep(c,&#39;\d+&#39;,&#39;0&#39;);</span><br><span class="line"></span><br><span class="line">s1 &#x3D; char(c2);</span><br><span class="line">z &#x3D; s1 &#x3D;&#x3D; &#39;0&#39;;</span><br><span class="line"></span><br><span class="line">[digruns,first,last] &#x3D; regexp(c,&#39;\d+&#39;,&#39;match&#39;,&#39;start&#39;,&#39;end&#39;);</span><br><span class="line"></span><br><span class="line">num_str &#x3D; length(c);</span><br><span class="line">max_len &#x3D; size(s1,2);</span><br><span class="line">num_val &#x3D; NaN(num_str,max_len);</span><br><span class="line">num_dig &#x3D; NaN(num_str,max_len);</span><br><span class="line">for i &#x3D; 1:num_str</span><br><span class="line">    num_val(i,z(i,:)) &#x3D; sscanf(sprintf(&#39;%s &#39;,digruns&#123;i&#125;&#123;:&#125;),&#39;%f&#39;);</span><br><span class="line">    num_dig(i,z(i,:)) &#x3D; last&#123;i&#125; - first&#123;i&#125; + 1;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">activecols &#x3D; reshape(find(~all(isnan(num_val))),1,[]);</span><br><span class="line">n &#x3D; length(activecols);</span><br><span class="line"></span><br><span class="line">numcols &#x3D; activecols + (1:2:2*n);</span><br><span class="line"></span><br><span class="line">ndigcols &#x3D; numcols + 1;</span><br><span class="line"></span><br><span class="line">charcols &#x3D; true(1,max_len + 2*n);</span><br><span class="line">charcols(numcols) &#x3D; false;</span><br><span class="line">charcols(ndigcols) &#x3D; false;</span><br><span class="line"></span><br><span class="line">comp &#x3D; zeros(num_str,max_len + 2*n);</span><br><span class="line">comp(:,charcols) &#x3D; double(s1);</span><br><span class="line">comp(:,numcols) &#x3D; num_val(:,activecols);</span><br><span class="line">comp(:,ndigcols) &#x3D; num_dig(:,activecols);</span><br><span class="line"></span><br><span class="line">[unused,index] &#x3D; sortrows(comp);</span><br><span class="line">if is_descend</span><br><span class="line">    index &#x3D; index(end:-1:1);</span><br><span class="line">end</span><br><span class="line">index &#x3D; reshape(index,size(c));</span><br><span class="line">cs &#x3D; c(index);</span><br><span class="line">end</span><br></pre></td></tr></table></figure>]]></content:encoded>
-      
-      <comments>https://www.tanjialin.cn/posts/12218.html#disqus_thread</comments>
     </item>
     
     <item>
